@@ -4,7 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>0feb15ce-fc4c-405e-906c-ae4e0c82f6a0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CheckStudyIDsOnFileServer.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CheckStudyIDsOnFileServer.py" />
+    <Compile Include="CheckStudyIDsOnFileServer_use.py" />
+    <Compile Include="CheckStudyIDsOnFileServer_remote.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
