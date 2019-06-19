@@ -45,8 +45,9 @@ def oom_studyIDs():
     cur.execute(sqlcode)
     studyIDs_in_SQl_list = []
     for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
+        studyIDs_in_SQl_list.append(row[0:][0])
     return studyIDs_in_SQl_list
+
 
 
 def lipPhotos_studyIDs():
@@ -231,6 +232,50 @@ def spVideo_studyIDs():
     for row in cur.fetchall():
         studyIDs_in_SQl_list.append(row[0:])
     return studyIDs_in_SQl_list
+
+
+def ooms_on_Server():
+    """Finds StudyIDs used on file server"""
+    folder_list = []
+    
+    folder = r'R:\OFC2\PhenotypeRating\OOM'
+    for root, dirs, files in os.walk(folder):
+        indiv_folder = {}
+        file_list = []
+        for file in files:
+            pattern = r'[a-zA-Z]{2}[0-9]{5}'
+            match = re.search(pattern, file)
+            if match:
+                file = file[0:2].upper() + file[2:]
+                file_list.append(file)
+        indiv_folder = {match[0]:file_list}
+        folder_list.append(indiv_folder)
+        
+    return folder_list
+
+def check_in_correct_folder(path):
+    wrong_folder = []
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            print(file, end='\r')
+            match = re.search("[A-Za-z]{2}[0-9]{5}", file)
+            if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
+                if file[match.start():match.end()] not in root:
+                   wrong_folder.append(os.path.join(root, file))
+    return wrong_folder
+
+
+
+def check_spelling(path, studyIDs):
+    mispelled_IDs = []
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            print(file, end='\r')
+            match = re.search("[A-Za-z]{2}[0-9]{5}", file)
+            if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):              
+                if file[match.start():match.end()] not in studyIDs:
+                    mispelled_IDs.append(os.path.join(root, file))
+    return mispelled_IDs
 
 def main():
     studyID_list = studyIDs_in_SQL()

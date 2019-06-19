@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /CheckStudyIDsOnFileServer/CheckStudyIDsOnFileServer_use.py
 /CheckStudyIDsOnFileServer/test.py
+/CheckStudyIDsOnFileServer/test2py.py

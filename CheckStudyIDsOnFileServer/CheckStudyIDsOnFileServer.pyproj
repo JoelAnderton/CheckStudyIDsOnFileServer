@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>0feb15ce-fc4c-405e-906c-ae4e0c82f6a0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>test.py</StartupFile>
+    <StartupFile>CheckStudyIDsOnFileServer_use.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -24,6 +24,9 @@
     <Compile Include="CheckStudyIDsOnFileServer_use.py" />
     <Compile Include="CheckStudyIDsOnFileServer_remote.py" />
     <Compile Include="test.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test2py.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
