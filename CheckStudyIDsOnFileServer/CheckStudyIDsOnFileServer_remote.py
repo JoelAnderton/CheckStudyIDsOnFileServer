@@ -26,8 +26,7 @@ import datetime
 def sql_connection():
     """Creates a SQL connection"""
     connection_string = ('Driver={SQL Server};' 
-                         #'Server=DESKTOP-JBRHK3M;'
-
+                         'Server=       ;'
 			             'Database=OFC2;' 
 			             'Trusted_Connection=Yes')
     connection = pypyodbc.connect(connection_string)
