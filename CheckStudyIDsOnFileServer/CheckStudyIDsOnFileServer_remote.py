@@ -12,11 +12,15 @@
 #
 #####################################################################################################################################
 
-
+from tkinter import *
+from tkinter import ttk
 import pypyodbc
 import os
 import re
 import sys
+import csv
+import re
+import datetime
 
 
 def sql_connection():
@@ -30,257 +34,173 @@ def sql_connection():
     return connection
 
 
-def oom_studyIDs():
-    """Finds completed OOM StudyIDs"""
+def get_file_paths():
+    phenotype_paths = {'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
+                    'LipPhotos':r'R:\OFC2\PhenotypeRating\LipPhotos',
+                    'LHFPhoto':r'R:\OFC2\PhenotypeRating\WoundHealingPhotos',
+                    'IntraoralPhotos':r'R:\OFC2\PhenotypeRating\IntraOralPhotos',
+                    'PalateVideo':r'R:\OFC2\PhenotypeRating\PalateVideos',
+                    'Photos3D':r'R:\OFC2\PhenotypeRating\3DImages',
+                    'DentalImpression':'R:\OFC2\PhenotypeRating\DentalCast',
+                    'HandScan':r'R:\OFC2\PhenotypeRating\Hand Scan',
+                    'SpeechVideos':r'R:\OFC2\PhenotypeRating\SpeechVideos'
+                    }
+    return phenotype_paths
+
+
+def get_studyIDs_SQL(phenotype, studyID=None):
+    """Finds completed StudyIDs in SQL"""
+    print('\nSearching SQL for StudyIDs')
+    studyID_list = []
+    studyID_list.append(studyID)
     connection = sql_connection()
     cur = connection.cursor()
 
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
+    if studyID == None: # if not given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+         [StudyID]
        
-    FROM IndividualChecklistExported
-    WHERE [LipUltrasound] = 1
-    ''')
-    cur.execute(sqlcode)
+        FROM IndividualChecklistExported
+        WHERE {0} = 1
+        '''.format(phenotype))
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+         [StudyID]
+       
+        FROM IndividualChecklistExported
+        WHERE {0} = 1 AND [StudyID] = ?
+        '''.format(phenotype))
+        cur.execute(sqlcode, studyID_list)
+
     studyIDs_in_SQl_list = []
     for row in cur.fetchall():
+        print('StudyID: {0}'.format(row[0:][0]), end='\r')
         studyIDs_in_SQl_list.append(row[0:][0])
+    print('StudyID: Done!     ')
+    print()
     return studyIDs_in_SQl_list
 
 
-
-def lipPhotos_studyIDs():
-    """Finds completed LipPhotos StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [LipPhotos] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-
-def lhfPhoto_studyIDs():
-    """Finds completed LHFPhoto StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [LHFPhoto] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-
-def iop_studyIDs():
-    """Finds completed IOP StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [IntraoralPhotos] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-def palateVideo_studyIDs():
-    """Finds completed PalateVideo StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [PalateVideo] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-def photos3D_studyIDs():
-    """Finds completed Photos3D StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [Photos3D] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-def dentalImpression_studyIDs():
-    """Finds completed DentalImpression StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [DentalImpression] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-
-def handScan_studyIDs():
-    """Finds completed HandScan StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [HandScan] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-def idVideo_studyIDs():
-    """Finds completed IDVideo StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [IDVideo] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-def stVideo_studyIDs():
-    """Finds completed STVideo StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [STVideo] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-def spVideo_studyIDs():
-    """Finds completed SPVideo StudyIDs"""
-    connection = sql_connection()
-    cur = connection.cursor()
-
-    sqlcode = ('''  
-    SELECT 
-     [StudyID]
-       
-    FROM IndividualChecklistExported
-    WHERE [SPVideo] = 1
-    ''')
-    cur.execute(sqlcode)
-    studyIDs_in_SQl_list = []
-    for row in cur.fetchall():
-        studyIDs_in_SQl_list.append(row[0:])
-    return studyIDs_in_SQl_list
-
-
-def ooms_on_Server():
+def get_studyIDs_Server(phenotype, studyID = None):
     """Finds StudyIDs used on file server"""
-    folder_list = []
-    
-    folder = r'R:\OFC2\PhenotypeRating\OOM'
-    for root, dirs, files in os.walk(folder):
-        indiv_folder = {}
-        file_list = []
-        for file in files:
-            pattern = r'[a-zA-Z]{2}[0-9]{5}'
-            match = re.search(pattern, file)
-            if match:
-                file = file[0:2].upper() + file[2:]
-                file_list.append(file)
-        indiv_folder = {match[0]:file_list}
-        folder_list.append(indiv_folder)
-        
-    return folder_list
+    print('\nSearching file server in the {0} phenotype folder for StudyIDs'.format(phenotype))
+ 
+    phenotype_paths = get_file_paths()
 
-def check_in_correct_folder(path):
+    path = phenotype_paths[phenotype]
+    studyID_list = []
+    if studyID == None:
+        for root, dirs, files in os.walk(path):
+            for dir in dirs:
+                match = re.search("[A-Za-z]{2}[0-9]{5}", dir)    
+                if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
+                    print('StudyID:', dir[match.start():match.end()], end='\r')
+                    studyID_list.append(dir[match.start():match.end()]) 
+    else:
+        for root, dirs, files in os.walk(path):
+            if studyID in dirs:
+                for dir in dirs:
+                    match = re.search("[A-Za-z]{2}[0-9]{5}", dir)    
+                    if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
+                        print('StudyID:', dir[match.start():match.end()], end='\r')
+                        studyID_list.append(dir[match.start():match.end()])
+    print('StudyID: Done!     ')
+    print()
+    return studyID_list
+
+
+def check_folder(phenotype, studyID = None):
+    """Check if file is in the correct folder"""
+    phenotype_paths = get_file_paths()
+    path = phenotype_paths[phenotype]
+
+    print('************************************\nFolder Check for {0}\n************************************'.format(phenotype))
     wrong_folder = []
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            print(file, end='\r')
-            match = re.search("[A-Za-z]{2}[0-9]{5}", file)
-            if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                if file[match.start():match.end()] not in root:
-                   wrong_folder.append(os.path.join(root, file))
-    return wrong_folder
 
+    if studyID == None:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
+                if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
+                    print('Checking files for:', file[match.start():match.end()], end='\r')
+                    if file[match.start():match.end()] not in root:
+                       wrong_folder.append(os.path.join(root, file))
+    else:
+        for root, dirs, files in os.walk(path):
+            if studyID in root:
+                for file in files:
+                    match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
+                    if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
+                        print('Checking files for:', file[match.start():match.end()], end='\r')
+                        if file[match.start():match.end()] not in root:
+                           wrong_folder.append(os.path.join(root, file))
 
+    if len(wrong_folder) >0:
+        print('Check that the file is in the correct folder for the following:')
+        for file in wrong_folder:
+            print(file)
+    else:
+        print('All files are in their correct folders!')
+    #return wrong_folder
 
-def check_spelling(path, studyIDs):
-    mispelled_IDs = []
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            print(file, end='\r')
-            match = re.search("[A-Za-z]{2}[0-9]{5}", file)
-            if match and ('Library' in root or '1ToProcess' in root) and ('Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):              
-                if file[match.start():match.end()] not in studyIDs:
-                    mispelled_IDs.append(os.path.join(root, file))
-    return mispelled_IDs
+def check_spelling(phenotype, studyID = None):
+    """Check if file has the correct spelling for a StudyID"""
+    diff = []
+    studyIDs_on_Server = get_studyIDs_Server(phenotype=phenotype, studyID=studyID)
+    studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+
+    print('************************************\nSpelling Check\n************************************')
+    if studyID == None:
+        diff = set(studyIDs_on_Server).difference(set(studyIDs_in_SQL))
+        if len(diff) > 0:
+            print('List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
+            for file in diff:
+               print(file)
+        else:
+            print('All files are spelled correct!')
+    else:
+        
+        if studyID not in studyIDs_on_Server and studyID in studyIDs_in_SQL:
+            print('StudyID: {0} is a valid StudyID, but does not exist in the {1} phenotype folder'.format(studyID, phenotype))
+        elif studyID in studyIDs_on_Server and studyID not in studyIDs_in_SQL:
+            print('StudyID: {0} is NOT a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
+        elif studyID not in studyIDs_on_Server and studyID not in studyIDs_in_SQL:
+            print('StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
+        else:
+            print('StudyID: {0} is spelled correctly on server!'.format(studyID))
+    print()
+
+def check_contents():
+    contents_dic = {'HandScan':{'.tif':1, '.tps':2},
+                    'PalateVideo':{'.mov':1}
+                    
+                    }
+
 
 def main():
-    studyID_list = studyIDs_in_SQL()
-    for studyID in studyID_list:
-        print(studyID)
+
+    #phenotype_list = ['LipUltrasound', 'LipPhotos', 'LHFPhoto', 'IntraoralPhotos', 'PalateVideo', 
+    #                  'Photos3D', 'DentalImpression', 'HandScan', 'IDVideo', 'STVideo', 'SPVideo']
+
+
+###### Test check_in_correct_folder:
+      
+    #check_folder('LipPhotos')
+    #check_folder('LipPhotos', studyID='LC10037')
+
+############
+
+
+###### Test check_spelling:
+
+    #phenotype = 'IntraoralPhotos'
+    #studyID = 'PH17400'
+    #check_spelling(phenotype)
+     
+############
 
 if __name__ == '__main__': 
     main()
