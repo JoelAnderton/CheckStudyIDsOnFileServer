@@ -185,21 +185,22 @@ def main():
     #                  'Photos3D', 'DentalImpression', 'HandScan', 'IDVideo', 'STVideo', 'SPVideo']
 
 
-###### Test check_in_correct_folder:
+    ###### Test check_in_correct_folder:
       
     #check_folder('LipPhotos')
     #check_folder('LipPhotos', studyID='LC10037')
 
-############
+    ############
 
 
-###### Test check_spelling:
+    ###### Test check_spelling:
 
     #phenotype = 'IntraoralPhotos'
     #studyID = 'PH17400'
     #check_spelling(phenotype)
      
-############
+    ############
+    pass
 
 if __name__ == '__main__': 
     main()
