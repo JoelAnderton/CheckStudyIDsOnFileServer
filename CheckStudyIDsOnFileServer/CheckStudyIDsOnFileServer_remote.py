@@ -70,7 +70,18 @@ def get_studyIDs_SQL(phenotype, studyID=None):
         sqlcode = ('''  
         SELECT 
          [StudyID]
-       
+        ,[LipUltrasound]
+	    ,[LipPhotos]
+        ,[LHFPhoto]
+        ,[IntraoralPhotos]
+        ,[PalateVideo]
+        ,[Photos3D]
+        ,[DentalImpression]
+	    ,[HandScan]
+        ,[SpeechVideos]
+        ,[IDVideo]
+        ,[STVideo]
+        ,[SPVideo]
         FROM IndividualChecklistExported
         WHERE {0} = 1
         '''.format(phenotype))
@@ -79,6 +90,18 @@ def get_studyIDs_SQL(phenotype, studyID=None):
         sqlcode = ('''  
         SELECT 
          [StudyID]
+        ,[LipUltrasound]
+	    ,[LipPhotos]
+        ,[LHFPhoto]
+        ,[IntraoralPhotos]
+        ,[PalateVideo]
+        ,[Photos3D]
+        ,[DentalImpression]
+	    ,[HandScan]
+        ,[SpeechVideos]
+        ,[IDVideo]
+        ,[STVideo]
+        ,[SPVideo]
        
         FROM IndividualChecklistExported
         WHERE {0} = 1 AND [StudyID] = ?
@@ -87,8 +110,9 @@ def get_studyIDs_SQL(phenotype, studyID=None):
 
     studyIDs_in_SQl_list = []
     for row in cur.fetchall():
+        #print(row)
         print('StudyID: {0}'.format(row[0:][0]), end='\r')
-        studyIDs_in_SQl_list.append(row[0:][0])
+        studyIDs_in_SQl_list.append(row)
     print('StudyID: Done!     ')
     print()
     return studyIDs_in_SQl_list
@@ -119,6 +143,7 @@ def get_studyIDs_Server(drive, phenotype, studyID = None):
     print('StudyID: Done!     ')
     print()
     return studyID_list
+
 
 
 def check_folder(drive, phenotype, studyID = None):
@@ -168,11 +193,16 @@ def check_spelling(drive, phenotype, studyID = None):
             studyIDs_on_Server.append(folder)
             folder_paths.update({folder : path})
 
-    # Gets accectable StudyIDs from SQL
+    # Gets StudyIDs from SQL
     studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+    only_StudyIDs = []
+    for row in studyIDs_in_SQL:   # get only the StudyIDs and add them to the only_StudyIDs list
+        only_StudyIDs.append(row[0:][0])
+    
+    #print(only_StudyIDs)
 
     if studyID == None:
-        diff = set(studyIDs_on_Server).difference(set(studyIDs_in_SQL))
+        diff = set(studyIDs_on_Server).difference(set(only_StudyIDs))
         if len(diff) > 0:
             print('List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
             for file in diff:
@@ -181,58 +211,73 @@ def check_spelling(drive, phenotype, studyID = None):
             print('All files are spelled correct!')
     else:
         
-        if studyID not in studyIDs_on_Server and studyID in studyIDs_in_SQL:
+        if studyID not in studyIDs_on_Server and studyID in only_StudyIDs:
             print('StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
-        elif studyID in studyIDs_on_Server and studyID not in studyIDs_in_SQL:
+        elif studyID in studyIDs_on_Server and studyID not in only_StudyIDs:
             print('StudyID: {0} is NOT a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             print(studyID, folder_paths[studyID])
-        elif studyID not in studyIDs_on_Server and studyID not in studyIDs_in_SQL:
+        elif studyID not in studyIDs_on_Server and studyID not in only_StudyIDs:
             print('StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         else:
             print('StudyID: {0} is spelled correctly on server!'.format(studyID))
             print(studyID, folder_paths[studyID])
     print()
 
-def check_contents():
-    contents_dic = {'HandScan':{'.tif':1, '.tps':2},
+def check_contents(drive, phenotype, studyID=None):
+    contents_dic = {'R:':{'HandScan':{'.tif':1, 
+                                '.tps':2},
                     'PalateVideo':{'.mov':1},
-                    'Photos3D':{'.tsb':2, '_Clean.bmp':1, '_Clean.gif':1, '_Clean.mtl':1, '_Clean.obj':1, '_Belgium.obj':1, '_Clean_Standard.pdf':1, '_Clean_Standard.tsb':1, '_Clean_Standard.txt':1 }
+                    'Photos3D':{'.tsb':3, 
+                                '.bmp':1, 
+                                '.gif':1, 
+                                '.mtl':1, 
+                                '.obj':2, 
+                                '.pdf':1, 
+                                '.txt':1 }
+
+                        }
                     }
 
+    #studyIDs_and_paths = get_studyIDs_Server(drive=drive, phenotype=phenotype, studyID=studyID)
+    #studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+    
+    path = get_file_paths(drive, phenotype)
+
+    # Get all Files and put them in a list
+    all_files = []
+    if studyID == None:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                match = re.search("[A-Za-z]{2}[0-9]{5}", file)
+                if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
+                    print('Checking files for:', file[match.start():match.end()], end='\r')
+                    extension = os.path.splitext(file)[1]
+                    all_files.append('{0}, {1}'.format(file[match.start():match.end()], extension))
+
+    # Count the number of files in the list 
+    count_all_files_list = []
+    for file in all_files:
+        count_all_files_list.append('{0}, {1}'.format(file, all_files.count(file)))
+
+    count_all_files_set = set(count_all_files_list) # make the list unique for each file type 
+    count_all_files_list_sorted = sorted(list(count_all_files_set))
+    for file in count_all_files_list_sorted:
+        print(file)
+
+
+
+
+
 def get_submit(drive, phenotype, studyID=None):
-    check_folder(drive, phenotype, studyID)
-    check_spelling(drive, phenotype, studyID)
-
-drive = 'P:' 
-phenotype = 'IntraoralPhotos'
-get_submit(drive, phenotype, studyID=None)
-
-#def main():
-
-    #phenotype_list = ['LipUltrasound', 'LipPhotos', 'LHFPhoto', 'IntraoralPhotos', 'PalateVideo', 
-    #                  'Photos3D', 'DentalImpression', 'HandScan', 'IDVideo', 'STVideo', 'SPVideo']
+    #check_folder(drive, phenotype, studyID)
+    #check_spelling(drive, phenotype, studyID)
+    check_contents(drive, phenotype, studyID)
 
 
-###### Test check_in_correct_folder:
-    #drive = 'P:' 
-    #phenotype = 'IntraoralPhotos'
-    #check_folder(drive, phenotype)
-    #check_folder(drive, phenotype, studyID='LC10037')
 
-############
-
-
-###### Test check_spelling:
-    #drive = 'R:'
-    #phenotype = 'LipPhotos'
-    #studyID = 'PH17400'
-    #check_spelling(drive, phenotype)
-     
-############
- 
-
-#if __name__ == '__main__': 
-#    main()
+drive = 'R:' 
+phenotype = 'Photos3D'
+get_submit(drive, phenotype)
 
 
 #root = Tk()
