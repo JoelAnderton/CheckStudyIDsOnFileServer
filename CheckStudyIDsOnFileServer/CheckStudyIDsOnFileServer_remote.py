@@ -62,7 +62,7 @@ def get_studyIDs_SQL(phenotype, studyID=''):
     """Finds completed StudyIDs in SQL"""
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert('1.0', '\nSearching SQL for StudyIDs\n')
+    text.insert('1.0', 'Searching SQL for StudyIDs\n')
     text.see(END)
     text.update()
     print('Searching SQL for StudyIDs')
@@ -71,7 +71,7 @@ def get_studyIDs_SQL(phenotype, studyID=''):
     connection = sql_connection()
     cur = connection.cursor()
 
-    if studyID == None: # if not given an individual StudyID
+    if studyID == '': # if not given an individual StudyID
         sqlcode = ('''  
         SELECT 
          [StudyID]
@@ -116,12 +116,14 @@ def get_studyIDs_SQL(phenotype, studyID=''):
     studyIDs_in_SQl_list = []
     for row in cur.fetchall():
         #print(row)
-        text.insert('1.0 + 3 lines', 'StudyID: {0}'.format(row[0:][0]))
+        text.insert('1.0', 'Searching SQL for StudyIDs\n')
+        text.insert('2.0', 'StudyID: {0}'.format(row[0:][0]))
         text.see(END)
         text.update()
-        text.delete('1.0 + 3 lines','end')
+        text.delete('1.0','end')
         print('StudyID: {0}'.format(row[0:][0]), end='\r')
         studyIDs_in_SQl_list.append(row)
+    text.insert('2.0', 'StudyID: Done!       ')
     print('StudyID: Done!     ')
     print()
     return studyIDs_in_SQl_list
@@ -129,22 +131,19 @@ def get_studyIDs_SQL(phenotype, studyID=''):
 
 def get_studyIDs_Server(drive, phenotype, studyID = ''):
     """Finds StudyIDs used on file server"""
-    text.config(state='normal')
-    text.delete('1.0', 'end')
-    text.insert('1.0', 'Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
-    text.see(END)
-    text.update()
-    print('\nSearching file server in the {0} phenotype folder for StudyIDs'.format(phenotype))
+
+    print('Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
  
     path = get_file_paths(drive, phenotype)
 
     studyID_list = []
-    if studyID == None:
+    if studyID == '':
         for root, dirs, files in os.walk(path):
             for dir in dirs:
                 match = re.search("[A-Za-z]{2}[0-9]{5}", dir)    
                 if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                    text.insert('1.0', 'StudyID: {0}'.format(dir[match.start():match.end()]))
+                    text.insert('1.0', 'Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
+                    text.insert('2.0', 'StudyID: {0}'.format(dir[match.start():match.end()]))
                     text.see(END)
                     text.update()
                     text.delete('1.0','end')
@@ -156,13 +155,14 @@ def get_studyIDs_Server(drive, phenotype, studyID = ''):
                 for dir in dirs:
                     match = re.search("[A-Za-z]{2}[0-9]{5}", dir)    
                     if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                        text.insert('1.0', 'StudyID: {0}'.format(dir[match.start():match.end()]))
+                        text.insert('1.0', 'Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
+                        text.insert('2.0', 'StudyID: {0}'.format(dir[match.start():match.end()]))
                         text.see(END)
                         text.update()
                         text.delete('1.0','end')
                         print('StudyID:', dir[match.start():match.end()], end='\r')
                         studyID_list.append({dir[match.start():match.end()]:os.path.join(root, dir[match.start():match.end()])})
-    text.insert('1.0', 'StudyID: Done!            ')
+    text.insert('2.0', 'StudyID: Done!            ')
     print('StudyID: Done!     ')
     print()
     return studyID_list
@@ -173,7 +173,7 @@ def check_folder(drive, phenotype, studyID = ''):
     """Check if file is in the correct folder"""
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert('1.0', '************************************\nFolder Check for {0}\n************************************'.format(phenotype))
+    text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
     text.see(END)
     text.update()
     print('************************************\nFolder Check for {0}\n************************************'.format(phenotype))
@@ -187,7 +187,8 @@ def check_folder(drive, phenotype, studyID = ''):
                 
                 match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                 if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):                
-                    text.insert('1.0', 'Folder check for: {0}'.format(file[match.start():match.end()]))
+                    text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+                    text.insert('4.0', 'Folder check for: {0}'.format(file[match.start():match.end()]))
                     text.see(END)
                     text.update()
                     text.delete('1.0','end')
@@ -200,7 +201,8 @@ def check_folder(drive, phenotype, studyID = ''):
                 for file in files:
                     match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                     if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                        text.insert('1.0', 'Folder check for: {0}'.format(file[match.start():match.end()]))
+                        text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+                        text.insert('4.0', 'Folder check for: {0}'.format(file[match.start():match.end()]))
                         text.see(END)
                         text.update()
                         text.delete('1.0','end')
@@ -211,14 +213,16 @@ def check_folder(drive, phenotype, studyID = ''):
  
 
     if len(wrong_folder) >0:
-        text.insert('1.0', 'Check that the file is in the correct folder for the following:\n')
+        text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+        text.insert('4.0', 'Check that the file is in the correct folder for the following:\n')
         text.see(END)
         text.update()
         print('Check that the file is in the correct folder for the following:')
         for file in wrong_folder:
-            text.insert('1.0 + 2 lines','{0}\n'.format(file))            
+            text.insert('4.0 + 2 lines','{0}\n'.format(file))            
     else:
-        text.insert('1.0', 'All files are in their correct folders!')
+        text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+        text.insert('4.0', 'All files are in their correct folders!')
         text.see(END)
         text.update()
         print('All files are in their correct folders!')
@@ -228,7 +232,7 @@ def check_spelling(drive, phenotype, studyID = ''):
     """Check if file has the correct spelling for a StudyID"""
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert('1.0', '************************************\nFolder Check for {0}\n************************************'.format(phenotype))
+    text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
     text.see(END)
     text.update()
     print('************************************\nSpelling Check\n************************************')
@@ -254,41 +258,50 @@ def check_spelling(drive, phenotype, studyID = ''):
     if studyID == '':
         diff = set(studyIDs_on_Server).difference(set(only_StudyIDs))
         if len(diff) > 0:
-            text.insert('1.0', 'List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
+            text.delete('1.0','end')
+            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
+            text.insert('4.0', 'List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
+            
             text.see(END)
             text.update()
-            text.delete('1.0','end')
             print('List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
             for file in diff:
+               text.insert('4.0 + 2 lines','{0} : {1}\n'.format(file,folder_paths[file] ))
+               #text.delete('1.0', 'end')
                print(file, folder_paths[file] )
         else:
+            text.delete('1.0','end')
+            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
+            text.insert('4.0', 'All files are spelled correct!')
+            text.see(END)
+            text.update()
             print('All files are spelled correct!')
     else:
         
         if studyID not in studyIDs_on_Server and studyID in only_StudyIDs:
-            text.insert('1.0', 'StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
+            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
+            text.insert('4.0', 'StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
-            text.delete('1.0','end')
             print('StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         elif studyID in studyIDs_on_Server and studyID not in only_StudyIDs:
-            text.insert('1.0', 'StudyID: {0} is a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
+            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
+            text.insert('4.0', 'StudyID: {0} is a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
-            text.delete('1.0','end')
             print('StudyID: {0} is NOT a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             print(studyID, folder_paths[studyID])
         elif studyID not in studyIDs_on_Server and studyID not in only_StudyIDs:
-            text.insert('1.0', 'StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
+            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
+            text.insert('4.0', 'StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
-            text.delete('1.0','end')
             print('StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         else:
-            text.insert('1.0', 'StudyID: {0} is spelled correctly on server!'.format(studyID))
+            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
+            text.insert('4.0', 'StudyID: {0} is spelled correctly on server!'.format(studyID))
             text.see(END)
             text.update()
-            text.delete('1.0','end')
             print('StudyID: {0} is spelled correctly on server!'.format(studyID))
             print(studyID, folder_paths[studyID])
     print()
@@ -315,7 +328,7 @@ def check_contents(drive, phenotype, studyID=''):
 
     # Get all Files and put them in a list
     all_files = []
-    if studyID == None:
+    if studyID == '':
         for root, dirs, files in os.walk(path):
             for file in files:
                 match = re.search("[A-Za-z]{2}[0-9]{5}", file)
