@@ -35,25 +35,26 @@ def sql_connection():
 
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
-                    'LipPhotos':r'R:\OFC2\PhenotypeRating\LipPhotos',
-                    'LHFPhoto':r'R:\OFC2\PhenotypeRating\WoundHealingPhotos',
-                    'IntraoralPhotos':r'R:\OFC2\PhenotypeRating\IntraOralPhotos',
-                    'PalateVideo':r'R:\OFC2\PhenotypeRating\PalateVideos',
-                    'Photos3D':r'R:\OFC2\PhenotypeRating\3DImages',
-                    'DentalImpression':'R:\OFC2\PhenotypeRating\DentalCast',
-                    'HandScan':r'R:\OFC2\PhenotypeRating\Hand Scan',
-                    'SpeechVideos':r'R:\OFC2\PhenotypeRating\SpeechVideos'
-                    },
+                             'LipPhotos':r'R:\OFC2\PhenotypeRating\LipPhotos',
+                             'LHFPhoto':r'R:\OFC2\PhenotypeRating\WoundHealingPhotos',
+                             'IntraoralPhotos':r'R:\OFC2\PhenotypeRating\IntraOralPhotos',
+                             'PalateVideo':r'R:\OFC2\PhenotypeRating\PalateVideos',
+                             'Photos3D':r'R:\OFC2\PhenotypeRating\3DImages',
+                             'DentalImpression':'R:\OFC2\PhenotypeRating\DentalCast',
+                             'HandScan':r'R:\OFC2\PhenotypeRating\Hand Scan',
+                             'SpeechVideos':r'R:\OFC2\PhenotypeRating\SpeechVideos'
+                            },
                      'P:':{'LipUltrasound':r'P:\OFC2\Phenotype Images Archive\OOM', 
-                    'LipPhotos':r'P:\OFC2\Phenotype Images Archive\LipPhotos',
-                    'LHFPhoto':r'P:\OFC2\Phenotype Images Archive\WoundHealingPhotos',
-                    'IntraoralPhotos':r'P:\OFC2\Phenotype Images Archive\IntraOralPhotos',
-                    'PalateVideo':r'P:\OFC2\Phenotype Images Archive\PalateVideos',
-                    'Photos3D':r'P:\OFC2\Phenotype Images Archive\3DImages',
-                    'DentalImpression':'P:\OFC2\Phenotype Images Archive\DentalCast',
-                    'HandScan':r'P:\OFC2\Phenotype Images Archive\Hand Scan',
-                    'SpeechVideos':r'P:\OFC2\Phenotype Images Archive\SpeechVideos'
-                    }}
+                           'LipPhotos':r'P:\OFC2\Phenotype Images Archive\LipPhotos',
+                           'LHFPhoto':r'P:\OFC2\Phenotype Images Archive\WoundHealingPhotos',
+                           'IntraoralPhotos':r'P:\OFC2\Phenotype Images Archive\IntraOralPhotos',
+                           'PalateVideo':r'P:\OFC2\Phenotype Images Archive\PalateVideos',
+                           'Photos3D':r'P:\OFC2\Phenotype Images Archive\3DImages',
+                           'DentalImpression':'P:\OFC2\Phenotype Images Archive\DentalCast',
+                           'HandScan':r'P:\OFC2\Phenotype Images Archive\Hand Scan',
+                           'SpeechVideos':r'P:\OFC2\Phenotype Images Archive\SpeechVideos'
+                          }
+                     }
     print(phenotype_paths[drive][phenotype])
     return phenotype_paths[drive][phenotype]
 
@@ -173,7 +174,7 @@ def check_folder(drive, phenotype, studyID = ''):
     """Check if file is in the correct folder"""
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+    text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
     text.see(END)
     text.update()
     print('************************************\nFolder Check for {0}\n************************************'.format(phenotype))
@@ -187,8 +188,8 @@ def check_folder(drive, phenotype, studyID = ''):
                 
                 match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                 if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):                
-                    text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
-                    text.insert('4.0', 'Folder check for: {0}'.format(file[match.start():match.end()]))
+                    text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+                    text.insert(INSERT, 'Folder check for: {0}'.format(file[match.start():match.end()]))
                     text.see(END)
                     text.update()
                     text.delete('1.0','end')
@@ -201,8 +202,8 @@ def check_folder(drive, phenotype, studyID = ''):
                 for file in files:
                     match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                     if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                        text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
-                        text.insert('4.0', 'Folder check for: {0}'.format(file[match.start():match.end()]))
+                        text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+                        text.insert(INSERT, 'Folder check for: {0}'.format(file[match.start():match.end()]))
                         text.see(END)
                         text.update()
                         text.delete('1.0','end')
@@ -213,16 +214,40 @@ def check_folder(drive, phenotype, studyID = ''):
  
 
     if len(wrong_folder) >0:
-        text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
-        text.insert('4.0', 'Check that the file is in the correct folder for the following:\n')
+        text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+        text.insert(INSERT, 'Check that the file is in the correct folder for the following:\n')
         text.see(END)
         text.update()
         print('Check that the file is in the correct folder for the following:')
-        for file in wrong_folder:
-            text.insert('4.0 + 2 lines','{0}\n'.format(file))            
+
+        cases = []
+        position_list = []
+        for num, file in enumerate(wrong_folder):
+            match = re.findall("[A-Za-z]{2}[0-9]{5}", file)
+            position = re.search("[A-Za-z]{2}[0-9]{5}", file)
+            cases.append(match)
+            position_list.append(position.start())
+            text.insert(INSERT,'{0}\n'.format(file)) 
+        
+        diff_list = []
+        for x, y in cases:
+            diffs = [i for i in range(len(x)) if x[i] != y[i]]
+            diff_list.append(diffs)
+        
+
+        line = 5
+        for diffs, position in zip(diff_list, position_list):
+            # print(diffs, position)
+            for diff in diffs:
+                text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
+                text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
+                text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 8), '{0}.{1}'.format(line, diff + position + 9))
+                text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
+            line += 1
+
     else:
-        text.insert('1.0', '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
-        text.insert('4.0', 'All files are in their correct folders!')
+        text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+        text.insert(INSERT, 'All files are in their correct folders!')
         text.see(END)
         text.update()
         print('All files are in their correct folders!')
@@ -307,19 +332,50 @@ def check_spelling(drive, phenotype, studyID = ''):
     print()
 
 def check_contents(drive, phenotype, studyID=''):
-    contents_dic = {'R:':{'HandScan':{'.tif':1, 
-                                '.tps':2},
-                    'PalateVideo':{'.mov':1},
-                    'Photos3D':{'.tsb':3, 
-                                '.bmp':1, 
-                                '.gif':1, 
-                                '.mtl':1, 
-                                '.obj':2, 
-                                '.pdf':1, 
-                                '.txt':1 }
+    contents_dic = {'R:':{'LipUltrasound':{'.mp4':1}, 
 
-                        }
-                    }
+                          'LipPhotos':{'LL_studyID_inv.JPG':1,
+                                       'LL_studyID_nor.JPG':1,
+                                       'LL_studyID_pco.JPG':1,
+                                       'UL_studyID_inv.JPG':1,
+                                       'UL_studyID_nor.JPG':1,
+                                       'UL_studyID_pco.JPG':1 
+                                       },
+
+                          'LHFPhoto':{'LHF.JPG':1},
+
+                          'IntraoralPhotos':{'t#.JPG':1},
+                          'PalateVideo':{'PAL.mov':1},
+
+                          'Photos3D':{'.tsb':1,
+                                      'Clean.tsb':1,
+                                      'Clean.obj':1,
+                                      'Clean.gif':1,
+                                      'Clean.mtl':1,
+                                      'Clean.bmp':1 
+                                       },
+                          
+                          'DentalImpression':{'MAND.stl':1,'MAX.stl':1},
+
+                          'HandScan':{'HSN.tif':1,
+                                      'HSN_Left.TPS':1, 
+                                      'HSN_Right.TPS':1 },
+
+                          'SpeechVideos':{'ID.mov':1,
+                                          'ST.mov':1, 
+                                          'SP.mov':1 },
+                          },
+                     'P:':{'LipUltrasound':r'P:\OFC2\Phenotype Images Archive\OOM', 
+                           'LipPhotos':r'P:\OFC2\Phenotype Images Archive\LipPhotos',
+                           'LHFPhoto':r'P:\OFC2\Phenotype Images Archive\WoundHealingPhotos',
+                           'IntraoralPhotos':r'P:\OFC2\Phenotype Images Archive\IntraOralPhotos',
+                           'PalateVideo':r'P:\OFC2\Phenotype Images Archive\PalateVideos',
+                           'Photos3D':r'P:\OFC2\Phenotype Images Archive\3DImages',
+                           'DentalImpression':'P:\OFC2\Phenotype Images Archive\DentalCast',
+                           'HandScan':r'P:\OFC2\Phenotype Images Archive\Hand Scan',
+                           'SpeechVideos':r'P:\OFC2\Phenotype Images Archive\SpeechVideos'
+                          }
+                     }
 
     #studyIDs_and_paths = get_studyIDs_Server(drive=drive, phenotype=phenotype, studyID=studyID)
     #studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
