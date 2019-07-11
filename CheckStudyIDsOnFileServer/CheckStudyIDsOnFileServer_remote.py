@@ -25,10 +25,10 @@ import datetime
 
 def sql_connection():
     """Creates a SQL connection"""
-    connection_string = ('Driver={SQL Server};' 
+    connection_string = ('Driver={SQL Server};'
                          'Server=       ;'
-			             'Database=OFC2;' 
-			             'Trusted_Connection=Yes')
+                         'Database=OFC2;' 
+                         'Trusted_Connection=Yes')
     connection = pypyodbc.connect(connection_string)
     return connection
 
@@ -354,21 +354,59 @@ def check_spelling(drive, phenotype, studyID = ''):
 
 def check_contents(drive, phenotype, studyID=''):
     '''Check that the subject(s) have all the correct files on the file server if SQL says they completed them'''
-    
+    text.config(state='normal')
+    text.delete('1.0', 'end')
+    text.insert(INSERT, '************************************\nCheck Contents for {0}\n************************************\n'.format(phenotype))
+    text.see(END)
+    text.update()
+
     studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
     path = get_file_paths(drive, phenotype)
 
-    if drive =='R:' and phenotype == 'LipUltrasound':
-        for subject in studyIDs_in_SQL:
-            print(subject)
+    lipUltrasound(studyIDs_in_SQL, path, studyID)
 
-    #if studyID == '':
-    #    for root, dirs, files in os.walk(path):
-    #        for file in files:
-                
-    #            match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
-                    #if match and '.mp4' in file:
-                    #    print()
+def lipUltrasound(studyIDs_in_SQL, path, studyID=''):    
+    all_studyIDs = []
+    for subject in studyIDs_in_SQL:
+        all_studyIDs.append(subject[0])
+    all_studyIDs_set = set(all_studyIDs)
+
+    all_files = []
+    if studyID == '':
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
+                if match and '.mp4' in file:
+                    text.insert('1.0', 'Finding files for StudyIDs\n')
+                    text.insert('2.0', 'StudyID: {0}'.format(match[0]))
+                    text.see(END)
+                    text.update()
+                    text.delete('1.0','end')
+                    all_files.append(match[0].strip())
+         
+    all_files_set = set(all_files)
+
+    missing_files = all_studyIDs_set.difference(all_files_set)
+    missing_files = sorted(list(missing_files))
+
+    if studyID == '':
+            if len(missing_files) > 0:
+                text.delete('1.0','end')
+                text.insert('1.0', '************************************\nCheck Contents for {0}\n************************************\n'.format(phenotype))  
+                text.see(END)
+                text.update()
+                for studyID in missing_files:
+                   text.insert('4.0 + 2 lines','{0} is missing an .mp4 file\n'.format(studyID))
+                    
+            else:
+                text.delete('1.0','end')
+                text.insert('1.0', '************************************\nCheck Contents for {0}\n************************************\n'.format(phenotype))
+                text.insert('4.0', 'All subjects have the correct files!')
+                text.see(END)
+                text.update()
+                print('All files are spelled correct!')
+   
+
 
     #contents_dic = {'R:':{'LipUltrasound':{'.mp4':1}, 
 
