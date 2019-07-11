@@ -241,44 +241,31 @@ def check_folder(drive, phenotype, studyID = ''):
             diff_list.append(diffs)
 
         line = 5
-        if phenotype == 'LipPhotos':  # LipPhotos file nameing convention is different than the other phenotypes - need to add 3 additional spaces to the 2nd diff mismatch
-            for diffs, position in zip(diff_list, position_list):
-            #print(diffs, position)
+        for diffs, position in zip(diff_list, position_list):
+                #print(diffs, position)
                 for diff in diffs:
                     text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
                     text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
-                    text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 11), '{0}.{1}'.format(line, diff + position + 12))
-                    text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
-                line += 1
-        else:
-            for diffs, position in zip(diff_list, position_list):
-                #print(diffs, position)
-                for diff in diffs:
                     if phenotype == 'Photos3D' and 'Faces Cleaned' in text.get('{0}.0'.format(line), "{0}.end".format(line)):
-                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
-                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
                         text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 14), '{0}.{1}'.format(line, diff + position + 15))
                         text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
 
                     elif phenotype == 'Photos3D' and 'Landmarks' in text.get('{0}.0'.format(line), "{0}.end".format(line)):
-                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
-                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
                         text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 18), '{0}.{1}'.format(line, diff + position + 19))
                         text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
 
                     elif phenotype == 'Photos3D' and 'Images' in text.get('{0}.0'.format(line), "{0}.end".format(line)):
-                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
-                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
                         text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 15), '{0}.{1}'.format(line, diff + position + 16))
                         text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
 
+                    elif phenotype == 'LipPhotos' and ('UL_' in text.get('{0}.0'.format(line), "{0}.end".format(line)) or 'LL_' in text.get('{0}.0'.format(line), "{0}.end".format(line))):
+                        text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 11), '{0}.{1}'.format(line, diff + position + 12))
+                        text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
+
                     else:
-                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
-                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
                         text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 8), '{0}.{1}'.format(line, diff + position + 9))
                         text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
                 line += 1
-
     else:
         text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
         text.insert(INSERT, 'All files are in their correct folders!')
@@ -366,76 +353,69 @@ def check_spelling(drive, phenotype, studyID = ''):
     print()
 
 def check_contents(drive, phenotype, studyID=''):
-    contents_dic = {'R:':{'LipUltrasound':{'.mp4':1}, 
-
-                          'LipPhotos':{'LL_studyID_inv.JPG':1,
-                                       'LL_studyID_nor.JPG':1,
-                                       'LL_studyID_pco.JPG':1,
-                                       'UL_studyID_inv.JPG':1,
-                                       'UL_studyID_nor.JPG':1,
-                                       'UL_studyID_pco.JPG':1 
-                                       },
-
-                          'LHFPhoto':{'LHF.JPG':1},
-
-                          'IntraoralPhotos':{'t#.JPG':1},
-                          'PalateVideo':{'PAL.mov':1},
-
-                          'Photos3D':{'.tsb':1,
-                                      'Clean.tsb':1,
-                                      'Clean.obj':1,
-                                      'Clean.gif':1,
-                                      'Clean.mtl':1,
-                                      'Clean.bmp':1 
-                                       },
-                          
-                          'DentalImpression':{'MAND.stl':1,'MAX.stl':1},
-
-                          'HandScan':{'HSN.tif':1,
-                                      'HSN_Left.TPS':1, 
-                                      'HSN_Right.TPS':1 },
-
-                          'SpeechVideos':{'ID.mov':1,
-                                          'ST.mov':1, 
-                                          'SP.mov':1 },
-                          },
-                     'P:':{'LipUltrasound':r'P:\OFC2\Phenotype Images Archive\OOM', 
-                           'LipPhotos':r'P:\OFC2\Phenotype Images Archive\LipPhotos',
-                           'LHFPhoto':r'P:\OFC2\Phenotype Images Archive\WoundHealingPhotos',
-                           'IntraoralPhotos':r'P:\OFC2\Phenotype Images Archive\IntraOralPhotos',
-                           'PalateVideo':r'P:\OFC2\Phenotype Images Archive\PalateVideos',
-                           'Photos3D':r'P:\OFC2\Phenotype Images Archive\3DImages',
-                           'DentalImpression':'P:\OFC2\Phenotype Images Archive\DentalCast',
-                           'HandScan':r'P:\OFC2\Phenotype Images Archive\Hand Scan',
-                           'SpeechVideos':r'P:\OFC2\Phenotype Images Archive\SpeechVideos'
-                          }
-                     }
-
-    #studyIDs_and_paths = get_studyIDs_Server(drive=drive, phenotype=phenotype, studyID=studyID)
-    #studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+    '''Check that the subject(s) have all the correct files on the file server if SQL says they completed them'''
     
+    studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
     path = get_file_paths(drive, phenotype)
 
-    # Get all Files and put them in a list
-    all_files = []
-    if studyID == '':
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                match = re.search("[A-Za-z]{2}[0-9]{5}", file)
-                if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                    print('Checking files for:', file[match.start():match.end()], end='\r')
-                    extension = os.path.splitext(file)[1]
-                    all_files.append('{0}, {1}'.format(file[match.start():match.end()], extension))
+    if drive =='R:' and phenotype == 'LipUltrasound':
+        for subject in studyIDs_in_SQL:
+            print(subject)
 
-    # Count the number of files in the list 
-    count_all_files_list = []
-    for file in all_files:
-        count_all_files_list.append('{0}, {1}'.format(file, all_files.count(file)))
+    #if studyID == '':
+    #    for root, dirs, files in os.walk(path):
+    #        for file in files:
+                
+    #            match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
+                    #if match and '.mp4' in file:
+                    #    print()
 
-    count_all_files_set = set(count_all_files_list) # make the list unique for each file type 
-    count_all_files_list_sorted = sorted(list(count_all_files_set))
-    for file in count_all_files_list_sorted:
-        print(file)
+    #contents_dic = {'R:':{'LipUltrasound':{'.mp4':1}, 
+
+    #                      'LipPhotos':{'LL_studyID_inv.JPG':1,
+    #                                   'LL_studyID_nor.JPG':1,
+    #                                   'LL_studyID_pco.JPG':1,
+    #                                   'UL_studyID_inv.JPG':1,
+    #                                   'UL_studyID_nor.JPG':1,
+    #                                   'UL_studyID_pco.JPG':1 
+    #                                   },
+
+    #                      'LHFPhoto':{'LHF.JPG':1},
+
+    #                      'IntraoralPhotos':{'t#.JPG':1},
+    #                      'PalateVideo':{'PAL.mov':1},
+
+    #                      'Photos3D':{'.tsb':1,
+    #                                  'Clean.tsb':1,
+    #                                  'Clean.obj':1,
+    #                                  'Clean.gif':1,
+    #                                  'Clean.mtl':1,
+    #                                  'Clean.bmp':1 
+    #                                   },
+                          
+    #                      'DentalImpression':{'MAND.stl':1,'MAX.stl':1},
+
+    #                      'HandScan':{'HSN.tif':1,
+    #                                  'HSN_Left.TPS':1, 
+    #                                  'HSN_Right.TPS':1 },
+
+    #                      'SpeechVideos':{'ID.mov':1,
+    #                                      'ST.mov':1, 
+    #                                      'SP.mov':1 },
+    #                      },
+    #                 'P:':{'LipUltrasound':r'P:\OFC2\Phenotype Images Archive\OOM', 
+    #                       'LipPhotos':r'P:\OFC2\Phenotype Images Archive\LipPhotos',
+    #                       'LHFPhoto':r'P:\OFC2\Phenotype Images Archive\WoundHealingPhotos',
+    #                       'IntraoralPhotos':r'P:\OFC2\Phenotype Images Archive\IntraOralPhotos',
+    #                       'PalateVideo':r'P:\OFC2\Phenotype Images Archive\PalateVideos',
+    #                       'Photos3D':r'P:\OFC2\Phenotype Images Archive\3DImages',
+    #                       'DentalImpression':'P:\OFC2\Phenotype Images Archive\DentalCast',
+    #                       'HandScan':r'P:\OFC2\Phenotype Images Archive\Hand Scan',
+    #                       'SpeechVideos':r'P:\OFC2\Phenotype Images Archive\SpeechVideos'
+    #                      }
+    #                 }
+
+
 
 
 def get_submit():
@@ -523,5 +503,4 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
-
 
