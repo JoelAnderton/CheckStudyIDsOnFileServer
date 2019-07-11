@@ -187,7 +187,8 @@ def check_folder(drive, phenotype, studyID = ''):
             for file in files:
                 
                 match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
-                if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):                
+                if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 
+                              'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4.24' in root):                
                     text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
                     text.insert(INSERT, 'Folder check for: {0}'.format(file[match.start():match.end()]))
                     text.see(END)
@@ -201,7 +202,8 @@ def check_folder(drive, phenotype, studyID = ''):
             if studyID in root:
                 for file in files:
                     match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
-                    if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
+                    if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 
+                                  'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4' in root): 
                         text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
                         text.insert(INSERT, 'Folder check for: {0}'.format(file[match.start():match.end()]))
                         text.see(END)
@@ -225,25 +227,57 @@ def check_folder(drive, phenotype, studyID = ''):
         for num, file in enumerate(wrong_folder):
             match = re.findall("[A-Za-z]{2}[0-9]{5}", file)
             position = re.search("[A-Za-z]{2}[0-9]{5}", file)
+            match = list(set(match)) # to convert it to a set and then back to to a list to remove any possible dups 
             cases.append(match)
             position_list.append(position.start())
             text.insert(INSERT,'{0}\n'.format(file)) 
         
+        #for i in cases:
+        #    print(i)
+
         diff_list = []
         for x, y in cases:
             diffs = [i for i in range(len(x)) if x[i] != y[i]]
             diff_list.append(diffs)
-        
 
         line = 5
-        for diffs, position in zip(diff_list, position_list):
-            # print(diffs, position)
-            for diff in diffs:
-                text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
-                text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
-                text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 8), '{0}.{1}'.format(line, diff + position + 9))
-                text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
-            line += 1
+        if phenotype == 'LipPhotos':  # LipPhotos file nameing convention is different than the other phenotypes - need to add 3 additional spaces to the 2nd diff mismatch
+            for diffs, position in zip(diff_list, position_list):
+            #print(diffs, position)
+                for diff in diffs:
+                    text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
+                    text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
+                    text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 11), '{0}.{1}'.format(line, diff + position + 12))
+                    text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
+                line += 1
+        else:
+            for diffs, position in zip(diff_list, position_list):
+                #print(diffs, position)
+                for diff in diffs:
+                    if phenotype == 'Photos3D' and 'Faces Cleaned' in text.get('{0}.0'.format(line), "{0}.end".format(line)):
+                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
+                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
+                        text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 14), '{0}.{1}'.format(line, diff + position + 15))
+                        text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
+
+                    elif phenotype == 'Photos3D' and 'Landmarks' in text.get('{0}.0'.format(line), "{0}.end".format(line)):
+                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
+                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
+                        text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 18), '{0}.{1}'.format(line, diff + position + 19))
+                        text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
+
+                    elif phenotype == 'Photos3D' and 'Images' in text.get('{0}.0'.format(line), "{0}.end".format(line)):
+                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
+                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
+                        text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 15), '{0}.{1}'.format(line, diff + position + 16))
+                        text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
+
+                    else:
+                        text.tag_add('diff{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 1))
+                        text.tag_config('diff{0}{1}'.format(line, diff + position), background='red')
+                        text.tag_add('diff2{0}{1}'.format(line, diff + position), '{0}.{1}'.format(line, diff + position + 8), '{0}.{1}'.format(line, diff + position + 9))
+                        text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
+                line += 1
 
     else:
         text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
@@ -404,9 +438,6 @@ def check_contents(drive, phenotype, studyID=''):
         print(file)
 
 
-
-
-
 def get_submit():
 
     if phenotype_combo.get() == '':
@@ -424,10 +455,6 @@ def get_submit():
 
 def get_about():
     pass
-
-#drive = 'R:' 
-#phenotype = 'Photos3D'
-#get_submit(drive, phenotype)
 
 
 root = Tk()
@@ -496,3 +523,5 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
+
+
