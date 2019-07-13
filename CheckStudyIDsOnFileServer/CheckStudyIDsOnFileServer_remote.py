@@ -62,10 +62,6 @@ def get_file_paths(drive, phenotype):
 def get_studyIDs_SQL(phenotype, studyID=''):
     """Finds completed StudyIDs in SQL"""
     text.config(state='normal')
-    text.delete('1.0', 'end')
-    text.insert('1.0', 'Searching SQL for StudyIDs\n')
-    text.see(END)
-    text.update()
     print('Searching SQL for StudyIDs')
     studyID_list = []
     studyID_list.append(studyID)
@@ -115,16 +111,18 @@ def get_studyIDs_SQL(phenotype, studyID=''):
         cur.execute(sqlcode, studyID_list)
 
     studyIDs_in_SQl_list = []
+    text.delete('4.0','end')
+    text.insert(INSERT, '\nSearching for StudyIDs on SQL:\n')
     for row in cur.fetchall():
         #print(row)
-        text.insert('1.0', 'Searching SQL for StudyIDs\n')
-        text.insert('2.0', 'StudyID: {0}'.format(row[0:][0]))
+        text.insert(INSERT, '\nStudyID: {0}'.format(row[0:][0]))
         text.see(END)
         text.update()
-        text.delete('1.0','end')
+        text.delete('5.0','end')
         print('StudyID: {0}'.format(row[0:][0]), end='\r')
         studyIDs_in_SQl_list.append(row)
-    text.insert('2.0', 'StudyID: Done!       ')
+    text.delete('5.0','end')
+    text.insert('5.0', '\nStudyID: Done!       ')
     print('StudyID: Done!     ')
     print()
     return studyIDs_in_SQl_list
@@ -137,17 +135,17 @@ def get_studyIDs_Server(drive, phenotype, studyID = ''):
  
     path = get_file_paths(drive, phenotype)
 
+    text.insert(INSERT, 'Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
     studyID_list = []
     if studyID == '':
         for root, dirs, files in os.walk(path):
             for dir in dirs:
                 match = re.search("[A-Za-z]{2}[0-9]{5}", dir)    
                 if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                    text.insert('1.0', 'Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
-                    text.insert('2.0', 'StudyID: {0}'.format(dir[match.start():match.end()]))
+                    text.insert('5.0', '\nStudyID: {0}\n'.format(dir[match.start():match.end()]))
                     text.see(END)
                     text.update()
-                    text.delete('1.0','end')
+                    text.delete('5.0','end')
                     print('StudyID:', dir[match.start():match.end()], end='\r')
                     studyID_list.append({dir[match.start():match.end()]:os.path.join(root, dir[match.start():match.end()])}) 
     else:
@@ -156,14 +154,14 @@ def get_studyIDs_Server(drive, phenotype, studyID = ''):
                 for dir in dirs:
                     match = re.search("[A-Za-z]{2}[0-9]{5}", dir)    
                     if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 'Pittsburgh' in root or 'Puerto Rico' in root):
-                        text.insert('1.0', 'Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
-                        text.insert('2.0', 'StudyID: {0}'.format(dir[match.start():match.end()]))
+                        text.insert('5.0', '\nStudyID: {0}\n'.format(dir[match.start():match.end()]))
                         text.see(END)
                         text.update()
-                        text.delete('1.0','end')
+                        text.delete('5.0','end')
                         print('StudyID:', dir[match.start():match.end()], end='\r')
                         studyID_list.append({dir[match.start():match.end()]:os.path.join(root, dir[match.start():match.end()])})
-    text.insert('2.0', 'StudyID: Done!            ')
+    text.delete('4.0','end')
+    #text.insert('5.0', 'StudyID: Done!            ')
     print('StudyID: Done!     ')
     print()
     return studyID_list
@@ -174,10 +172,10 @@ def check_folder(drive, phenotype, studyID = ''):
     """Check if file is in the correct folder"""
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+    text.insert(INSERT, '**************************************************************************\nFolder Check for {0}\n**************************************************************************\n'.format(phenotype))
     text.see(END)
     text.update()
-    print('************************************\nFolder Check for {0}\n************************************'.format(phenotype))
+    print('****************************************************************\nFiles in Correct Folders Check for: {0}\n****************************************************************'.format(phenotype))
     path = get_file_paths(drive, phenotype)
         
     wrong_folder = []
@@ -189,8 +187,8 @@ def check_folder(drive, phenotype, studyID = ''):
                 match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                 if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 
                               'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4.24' in root):                
-                    text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
-                    text.insert(INSERT, 'Folder check for: {0}'.format(file[match.start():match.end()]))
+                    text.insert(INSERT, '****************************************************************\nFiles in Correct Folders Check for: {0}\n****************************************************************\n'.format(phenotype))
+                    text.insert(INSERT, 'Checking that the files are in the correct folders for: {0}'.format(file[match.start():match.end()]))
                     text.see(END)
                     text.update()
                     text.delete('1.0','end')
@@ -204,7 +202,7 @@ def check_folder(drive, phenotype, studyID = ''):
                     match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                     if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 
                                   'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4' in root): 
-                        text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+                        text.insert(INSERT, '**************************************************************************\nFiles in Correct Folders Check for: {0}\n**************************************************************************\n'.format(phenotype))
                         text.insert(INSERT, 'Folder check for: {0}'.format(file[match.start():match.end()]))
                         text.see(END)
                         text.update()
@@ -216,7 +214,7 @@ def check_folder(drive, phenotype, studyID = ''):
  
 
     if len(wrong_folder) >0:
-        text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+        text.insert(INSERT, '**************************************************************************\nFiles in Correct Folders Check for: {0}\n**************************************************************************\n'.format(phenotype))
         text.insert(INSERT, 'Check that the file is in the correct folder for the following:\n')
         text.see(END)
         text.update()
@@ -267,18 +265,18 @@ def check_folder(drive, phenotype, studyID = ''):
                         text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
                 line += 1
     else:
-        text.insert(INSERT, '************************************\nFolder Check for {0}\n************************************\n'.format(phenotype))
+        text.insert(INSERT, '**********************************************\nFiles in Correct Folders Check for: {0}\n**********************************************\n'.format(phenotype))
         text.insert(INSERT, 'All files are in their correct folders!')
         text.see(END)
         text.update()
         print('All files are in their correct folders!')
-    text.config(state='disabled')
+    text.configure(state='disabled')
 
 def check_spelling(drive, phenotype, studyID = ''):
     """Check if file has the correct spelling for a StudyID"""
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
+    text.insert(INSERT, '**********************************************\nSpelling Check for {0}\n**********************************************\n'.format(phenotype))
     text.see(END)
     text.update()
     print('************************************\nSpelling Check\n************************************')
@@ -304,156 +302,141 @@ def check_spelling(drive, phenotype, studyID = ''):
     if studyID == '':
         diff = set(studyIDs_on_Server).difference(set(only_StudyIDs))
         if len(diff) > 0:
-            text.delete('1.0','end')
-            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
-            text.insert('4.0', 'List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
-            
+            text.delete('4.0', 'end')
+            text.insert('4.0', '\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
             text.see(END)
             text.update()
             print('List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
             for file in diff:
-               text.insert('4.0 + 2 lines','{0} : {1}\n'.format(file,folder_paths[file] ))
-               #text.delete('1.0', 'end')
+               text.insert(INSERT,'{0} : {1}\n'.format(file,folder_paths[file] ))
+               text.see(END)
+               text.update()
                print(file, folder_paths[file] )
         else:
-            text.delete('1.0','end')
-            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
-            text.insert('4.0', 'All files are spelled correct!')
+            text.insert(INSERT, '\nAll files are spelled correct!')
             text.see(END)
             text.update()
             print('All files are spelled correct!')
     else:
         
         if studyID not in studyIDs_on_Server and studyID in only_StudyIDs:
-            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
-            text.insert('4.0', 'StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
+            text.insert(INSERT, '\nStudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
             print('StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         elif studyID in studyIDs_on_Server and studyID not in only_StudyIDs:
-            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
-            text.insert('4.0', 'StudyID: {0} is a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
+            text.insert(INSERT, '\nStudyID: {0} is a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
             print('StudyID: {0} is NOT a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             print(studyID, folder_paths[studyID])
         elif studyID not in studyIDs_on_Server and studyID not in only_StudyIDs:
-            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
-            text.insert('4.0', 'StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
+            text.insert(INSERT, '\nStudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
             print('StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         else:
-            text.insert('1.0', '************************************\nSpelling Check for {0}\n************************************\n'.format(phenotype))
-            text.insert('4.0', 'StudyID: {0} is spelled correctly on server!'.format(studyID))
+            text.insert(INSERT, '\nStudyID: {0} is spelled correctly on server!'.format(studyID))
             text.see(END)
             text.update()
             print('StudyID: {0} is spelled correctly on server!'.format(studyID))
             print(studyID, folder_paths[studyID])
-    print()
+
+    text.configure(state='disabled')
 
 def check_contents(drive, phenotype, studyID=''):
     '''Check that the subject(s) have all the correct files on the file server if SQL says they completed them'''
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert(INSERT, '************************************\nCheck Contents for {0}\n************************************\n'.format(phenotype))
+    text.insert(INSERT, '**********************************************\nCheck Contents for {0}\n**********************************************\n'.format(phenotype))
     text.see(END)
     text.update()
 
-    studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
     path = get_file_paths(drive, phenotype)
+    studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+    
 
-    lipUltrasound(studyIDs_in_SQL, path, studyID)
 
-def lipUltrasound(studyIDs_in_SQL, path, studyID=''):    
-    all_studyIDs = []
-    for subject in studyIDs_in_SQL:
-        all_studyIDs.append(subject[0])
-    all_studyIDs_set = set(all_studyIDs)
+    contents_dic = {'R:': 
+                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.mp4'],
 
-    all_files = []
-    if studyID == '':
+                    'LipPhotos':['LL_[A-Za-z]{2}[0-9]{5}_inv.JPG',
+                                 'LL_[A-Za-z]{2}[0-9]{5}_nor.JPG',
+                                 'LL_[A-Za-z]{2}[0-9]{5}_pco.JPG',
+                                 'UL_[A-Za-z]{2}[0-9]{5}_inv.JPG',
+                                 'UL_[A-Za-z]{2}[0-9]{5}_nor.JPG',
+                                 'UL_[A-Za-z]{2}[0-9]{5}_pco.JPG'],
+
+                    'LHFPhoto':['.JPG'],
+
+                     'IntraoralPhotos':['[A-Za-z]{2}[0-9]{5}t[0-9]{1,2}.JPG'],
+
+                     'PalateVideo':['PAL.mov'],
+
+                     'Photos3D':['.tsb',
+                                 'Clean.tsb',
+                                 'Clean.obj',
+                                 'Clean.gif',
+                                 'Clean.mtl',
+                                 'Clean.bmp' 
+                                  ],
+
+                     'DentalImpression':['MAND.stl','MAX.stl'],
+
+                     'HandScan':['HSN.tif',
+                                 'HSN_Left.TPS', 
+                                 'HSN_Right.TPS'],
+
+                     'SpeechVideos':['ID.mov',
+                                     'ST.mov', 
+                                     'SP.mov']
+                     }
+                } 
+
+    # LipUltrasounds Contents Check  both R: and P: drives    
+    lipUltrasound = []
+    should_have_LipUltrasound = []
+    missing_LipUltrasound = []
+
+    text.delete('4.0','end')
+    text.insert(INSERT, '\nSearching File Server for files\n')
+    if phenotype == 'LipUltrasound':  
         for root, dirs, files in os.walk(path):
             for file in files:
-                match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
-                if match and '.mp4' in file:
-                    text.insert('1.0', 'Finding files for StudyIDs\n')
-                    text.insert('2.0', 'StudyID: {0}'.format(match[0]))
-                    text.see(END)
-                    text.update()
-                    text.delete('1.0','end')
-                    all_files.append(match[0].strip())
-         
-    all_files_set = set(all_files)
+                for pattern in contents_dic[drive][phenotype]:
+                    match = re.findall(pattern, file)
+                    if match:
+                        study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
+                        print('Appending', study_ID_in_file[0], file)                        
+                        text.insert(INSERT, '\nFile: {0}\n'.format(file))
+                        text.see(END)
+                        text.update()
+                        text.delete('5.0','end')
+                        lipUltrasound.append(study_ID_in_file[0])
 
-    missing_files = all_studyIDs_set.difference(all_files_set)
-    missing_files = sorted(list(missing_files))
+        for studyID in studyIDs_in_SQL:
+           should_have_LipUltrasound.append(studyID[0])
 
-    if studyID == '':
-            if len(missing_files) > 0:
-                text.delete('1.0','end')
-                text.insert('1.0', '************************************\nCheck Contents for {0}\n************************************\n'.format(phenotype))  
+        
+        missing_LipUltrasound = sorted(list(set(should_have_LipUltrasound).difference(set(lipUltrasound))))
+
+        text.delete('4.0','end')  
+        if len(missing_LipUltrasound) >0:
+            for studyID in missing_LipUltrasound:
+                text.insert(INSERT,'\n{0} is missing an .mp4 file'.format(studyID))
                 text.see(END)
                 text.update()
-                for studyID in missing_files:
-                   text.insert('4.0 + 2 lines','{0} is missing an .mp4 file\n'.format(studyID))
+                print(studyID, 'is missing an .mp4 file')
+            text.insert(INSERT,'\nTotal number of files missing: {}\n'.format(len(missing_LipUltrasound)))
+            print('Total number of files missing: {}'.format(len(missing_LipUltrasound))) 
                     
-            else:
-                text.delete('1.0','end')
-                text.insert('1.0', '************************************\nCheck Contents for {0}\n************************************\n'.format(phenotype))
-                text.insert('4.0', 'All subjects have the correct files!')
-                text.see(END)
-                text.update()
-                print('All files are spelled correct!')
+        else:
+            text.insert(INSERT, '\nAll subjects have the correct files!')
+            text.see(END)
+            text.update()
+            print('All files are spelled correct!')
    
-
-
-    #contents_dic = {'R:':{'LipUltrasound':{'.mp4':1}, 
-
-    #                      'LipPhotos':{'LL_studyID_inv.JPG':1,
-    #                                   'LL_studyID_nor.JPG':1,
-    #                                   'LL_studyID_pco.JPG':1,
-    #                                   'UL_studyID_inv.JPG':1,
-    #                                   'UL_studyID_nor.JPG':1,
-    #                                   'UL_studyID_pco.JPG':1 
-    #                                   },
-
-    #                      'LHFPhoto':{'LHF.JPG':1},
-
-    #                      'IntraoralPhotos':{'t#.JPG':1},
-    #                      'PalateVideo':{'PAL.mov':1},
-
-    #                      'Photos3D':{'.tsb':1,
-    #                                  'Clean.tsb':1,
-    #                                  'Clean.obj':1,
-    #                                  'Clean.gif':1,
-    #                                  'Clean.mtl':1,
-    #                                  'Clean.bmp':1 
-    #                                   },
-                          
-    #                      'DentalImpression':{'MAND.stl':1,'MAX.stl':1},
-
-    #                      'HandScan':{'HSN.tif':1,
-    #                                  'HSN_Left.TPS':1, 
-    #                                  'HSN_Right.TPS':1 },
-
-    #                      'SpeechVideos':{'ID.mov':1,
-    #                                      'ST.mov':1, 
-    #                                      'SP.mov':1 },
-    #                      },
-    #                 'P:':{'LipUltrasound':r'P:\OFC2\Phenotype Images Archive\OOM', 
-    #                       'LipPhotos':r'P:\OFC2\Phenotype Images Archive\LipPhotos',
-    #                       'LHFPhoto':r'P:\OFC2\Phenotype Images Archive\WoundHealingPhotos',
-    #                       'IntraoralPhotos':r'P:\OFC2\Phenotype Images Archive\IntraOralPhotos',
-    #                       'PalateVideo':r'P:\OFC2\Phenotype Images Archive\PalateVideos',
-    #                       'Photos3D':r'P:\OFC2\Phenotype Images Archive\3DImages',
-    #                       'DentalImpression':'P:\OFC2\Phenotype Images Archive\DentalCast',
-    #                       'HandScan':r'P:\OFC2\Phenotype Images Archive\Hand Scan',
-    #                       'SpeechVideos':r'P:\OFC2\Phenotype Images Archive\SpeechVideos'
-    #                      }
-    #                 }
-
-
+    text.configure(state='disabled')
 
 
 def get_submit():
