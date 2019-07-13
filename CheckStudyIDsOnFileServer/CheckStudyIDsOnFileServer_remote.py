@@ -358,20 +358,20 @@ def check_contents(drive, phenotype, studyID=''):
 
 
     contents_dic = {'R:': 
-                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.mp4'],
+                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]'],
 
-                    'LipPhotos':['LL_[A-Za-z]{2}[0-9]{5}_inv.JPG',
-                                 'LL_[A-Za-z]{2}[0-9]{5}_nor.JPG',
-                                 'LL_[A-Za-z]{2}[0-9]{5}_pco.JPG',
-                                 'UL_[A-Za-z]{2}[0-9]{5}_inv.JPG',
-                                 'UL_[A-Za-z]{2}[0-9]{5}_nor.JPG',
-                                 'UL_[A-Za-z]{2}[0-9]{5}_pco.JPG'],
+                    'LipPhotos':['LL_[A-Za-z]{2}[0-9]{5}_inv.[Jj][Pp][Gg]',
+                                 'LL_[A-Za-z]{2}[0-9]{5}_nor.[Jj][Pp][Gg]',
+                                 'LL_[A-Za-z]{2}[0-9]{5}_pco.[Jj][Pp][Gg]',
+                                 'UL_[A-Za-z]{2}[0-9]{5}_inv.[Jj][Pp][Gg]',
+                                 'UL_[A-Za-z]{2}[0-9]{5}_nor.[Jj][Pp][Gg]',
+                                 'UL_[A-Za-z]{2}[0-9]{5}_pco.[Jj][Pp][Gg]'],
 
-                    'LHFPhoto':['.JPG'],
+                    'LHFPhoto':['[A-Za-z]{2}[0-9]{5}.*\.[Jj][Pp][Gg]'],
 
-                     'IntraoralPhotos':['[A-Za-z]{2}[0-9]{5}t[0-9]{1,2}.JPG'],
+                     'IntraoralPhotos':['[A-Za-z]{2}[0-9]{5}t[0-9]{1,2}.[Jj][Pp][Gg]'],
 
-                     'PalateVideo':['PAL.mov'],
+                     'PalateVideo':['[A-Za-z]{2}[0-9]{5}PAL.*\.[Mm][Oo][Vv]'],
 
                      'Photos3D':['.tsb',
                                  'Clean.tsb',
@@ -387,23 +387,24 @@ def check_contents(drive, phenotype, studyID=''):
                                  'HSN_Left.TPS', 
                                  'HSN_Right.TPS'],
 
-                     'SpeechVideos':['ID.mov',
-                                     'ST.mov', 
-                                     'SP.mov']
+                     'SpeechVideos':['ID.[Mm][Oo][Vv]',
+                                     'ST.[Mm][Oo][Vv]', 
+                                     'SP.[Mm][Oo][Vv]']
                      },
                 'P:': 
-                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.mp4']
+                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]']
                      }
                 } 
 
-    # LipUltrasounds Contents Check  both R: and P: drives    
-    lipUltrasound = []
-    should_have_LipUltrasound = []
-    missing_LipUltrasound = []
-
-    text.delete('4.0','end')
-    text.insert(INSERT, '\nSearching File Server for files\n')
+    # LipUltrasounds Contents Check  both R: and P: drives  
     if phenotype == 'LipUltrasound':  
+        lipUltrasound = []
+        should_have_LipUltrasound = []
+        missing_LipUltrasound = []
+
+        text.delete('4.0','end')
+        text.insert(INSERT, '\nSearching File Server for files\n')
+      
         for root, dirs, files in os.walk(path):
             for file in files:
                 for pattern in contents_dic[drive][phenotype]:
@@ -418,7 +419,7 @@ def check_contents(drive, phenotype, studyID=''):
                         lipUltrasound.append(study_ID_in_file[0])
 
         for studyID in studyIDs_in_SQL:
-           should_have_LipUltrasound.append(studyID[0])
+            should_have_LipUltrasound.append(studyID[0])
 
         
         missing_LipUltrasound = sorted(list(set(should_have_LipUltrasound).difference(set(lipUltrasound))))
@@ -527,3 +528,5 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
+
+
