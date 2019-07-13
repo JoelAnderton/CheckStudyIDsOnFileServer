@@ -390,6 +390,9 @@ def check_contents(drive, phenotype, studyID=''):
                      'SpeechVideos':['ID.mov',
                                      'ST.mov', 
                                      'SP.mov']
+                     },
+                'P:': 
+                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.mp4']
                      }
                 } 
 
@@ -524,4 +527,3 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
-
