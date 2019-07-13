@@ -14,6 +14,7 @@
 
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 import pypyodbc
 import os
 import re
@@ -21,6 +22,7 @@ import sys
 import csv
 import re
 import datetime
+import itertools
 
 
 def sql_connection():
