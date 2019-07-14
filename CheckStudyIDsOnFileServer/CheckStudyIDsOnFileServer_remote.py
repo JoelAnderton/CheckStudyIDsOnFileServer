@@ -371,38 +371,45 @@ def check_contents(drive, phenotype, studyID=''):
 
                     'LHFPhoto':['[A-Za-z]{2}[0-9]{5}.*\.[Jj][Pp][Gg]'],
 
-                     'IntraoralPhotos':['[A-Za-z]{2}[0-9]{5}t[0-9]{1,2}.[Jj][Pp][Gg]'],
+                     'IntraoralPhotos':['[A-Za-z]{2}[0-9]{5}[Tt][0-9]{1,2}.[Jj][Pp][Gg]'],
 
                      'PalateVideo':['[A-Za-z]{2}[0-9]{5}PAL.*\.[Mm][Oo][Vv]'],
 
-                     'Photos3D':['.tsb',
-                                 'Clean.tsb',
-                                 'Clean.obj',
-                                 'Clean.gif',
-                                 'Clean.mtl',
-                                 'Clean.bmp' 
+                     'Photos3D':['[A-Za-z]{2}[0-9]{5}.*\.[Tt][Ss][Bb]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean\.[Tt][Ss][Bb]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean\.[Oo][Bb][Jj]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean\.[Gg][Ii][Ff]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean\.[Mm][Tt][Ll]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean\.[Bb][Mm][Pp]' 
                                   ],
 
-                     'DentalImpression':['MAND.stl','MAX.stl'],
+                     'DentalImpression':['[A-Za-z]{2}[0-9]{5}MAND\.[Ss][Tt][Ll]',
+                                         '[A-Za-z]{2}[0-9]{5}MAX\.[Ss][Tt][Ll]'],
 
-                     'HandScan':['HSN.tif',
-                                 'HSN_Left.TPS', 
-                                 'HSN_Right.TPS'],
+                     'HandScan':['[A-Za-z]{2}[0-9]{5}HSN\.[Tt][Ii][Tf]',
+                                 '[A-Za-z]{2}[0-9]{5}HSN_Left\.[Tt][Pp][Ss]', 
+                                 '[A-Za-z]{2}[0-9]{5}HSN_Right\.[Tt][Pp][Ss]'],
 
-                     'SpeechVideos':['ID.[Mm][Oo][Vv]',
-                                     'ST.[Mm][Oo][Vv]', 
-                                     'SP.[Mm][Oo][Vv]']
+                     'SpeechVideos':['[A-Za-z]{2}[0-9]{5}_ID\.[Mm][Oo][Vv]',
+                                     '[A-Za-z]{2}[0-9]{5}_ST\.[Mm][Oo][Vv]', 
+                                     '[A-Za-z]{2}[0-9]{5}_SP\.[Mm][Oo][Vv]']
                      },
                 'P:': 
-                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]']
+                    {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]'],
+
+                     'LHFPhoto':['[A-Za-z]{2}[0-9]{5}.*\.[Jj][Pp][Gg]'],
+
+                     'IntraoralPhotos':['[A-Za-z]{2}[0-9]{5}t[0-9]{1,2}.[Jj][Pp][Gg]'],
+
+                     'PalateVideo':['[A-Za-z]{2}[0-9]{5}PAL.*\.[Mm][Oo][Vv]']
                      }
                 } 
 
-    # LipUltrasounds Contents Check  both R: and P: drives  
-    if phenotype == 'LipUltrasound':  
-        lipUltrasound = []
-        should_have_LipUltrasound = []
-        missing_LipUltrasound = []
+    # Handles 'LipUltrasound', 'LHFPhoto', 'IntraoralPhotos', 'PalateVideo' Contents Check  both R: and P: drives  
+    if phenotype in ['LipUltrasound', 'LHFPhoto', 'IntraoralPhotos', 'PalateVideo']:  
+        on_fileserver = [] # list of those that exist on fileserver
+        should_have = [] # list of files they should have
+        missing = [] # list of missing files
 
         text.delete('4.0','end')
         text.insert(INSERT, '\nSearching File Server for files\n')
@@ -418,29 +425,39 @@ def check_contents(drive, phenotype, studyID=''):
                         text.see(END)
                         text.update()
                         text.delete('5.0','end')
-                        lipUltrasound.append(study_ID_in_file[0])
+                        on_fileserver.append(study_ID_in_file[0])
 
         for studyID in studyIDs_in_SQL:
-            should_have_LipUltrasound.append(studyID[0])
+            should_have.append(studyID[0])
 
         
-        missing_LipUltrasound = sorted(list(set(should_have_LipUltrasound).difference(set(lipUltrasound))))
+        missing = sorted(list(set(should_have).difference(set(on_fileserver))))
 
         text.delete('4.0','end')  
-        if len(missing_LipUltrasound) >0:
-            for studyID in missing_LipUltrasound:
-                text.insert(INSERT,'\n{0} is missing an .mp4 file'.format(studyID))
+        text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        if len(missing) >0:
+            for studyID in missing:
+                if phenotype == 'LipUltrasound':
+                    file_extenstion = '.mp4'
+                elif phenotype in ['LHFPhoto', 'IntraoralPhotos']: 
+                    file_extenstion = '.jpg'
+                elif phenotype == 'PalateVideo':
+                    file_extenstion = '.mov'
+                else:
+                    file_extenstion = 'some'
+
+                text.insert(INSERT,'{0} is missing a {1} file\n'.format(studyID, file_extenstion))
                 text.see(END)
                 text.update()
                 print(studyID, 'is missing an .mp4 file')
-            text.insert(INSERT,'\nTotal number of files missing: {}\n'.format(len(missing_LipUltrasound)))
-            print('Total number of files missing: {}'.format(len(missing_LipUltrasound))) 
+            text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
+            print('Total number of files missing: {}'.format(len(missing))) 
                     
         else:
             text.insert(INSERT, '\nAll subjects have the correct files!')
             text.see(END)
             text.update()
-            print('All files are spelled correct!')
+            print('All subjects have the correct files!')
    
     text.configure(state='disabled')
 
@@ -530,5 +547,3 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
-
-
