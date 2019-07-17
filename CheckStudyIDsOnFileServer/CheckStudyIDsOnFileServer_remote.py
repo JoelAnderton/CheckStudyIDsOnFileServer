@@ -86,6 +86,8 @@ def get_studyIDs_SQL(phenotype, studyID=''):
         ,[IDVideo]
         ,[STVideo]
         ,[SPVideo]
+        ,[CameraType]
+
         FROM IndividualChecklistExported
         WHERE {0} = 1
         '''.format(phenotype))
@@ -106,6 +108,7 @@ def get_studyIDs_SQL(phenotype, studyID=''):
         ,[IDVideo]
         ,[STVideo]
         ,[SPVideo]
+        ,[CameraType]
        
         FROM IndividualChecklistExported
         WHERE {0} = 1 AND [StudyID] = ?
@@ -380,19 +383,26 @@ def check_contents(drive, phenotype, studyID=''):
                                  '[A-Za-z]{2}[0-9]{5}.*Clean\.[Oo][Bb][Jj]',
                                  '[A-Za-z]{2}[0-9]{5}.*Clean\.[Gg][Ii][Ff]',
                                  '[A-Za-z]{2}[0-9]{5}.*Clean\.[Mm][Tt][Ll]',
-                                 '[A-Za-z]{2}[0-9]{5}.*Clean\.[Bb][Mm][Pp]' 
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean\.[Bb][Mm][Pp]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean_Belgium\.[Oo][Bb][Jj]',
+                                 '[A-Za-z]{2}[0-9]{5}.*\.[Oo][Bb][Jj]',
+                                 '[A-Za-z]{2}[0-9]{5}.*\.[Bb][Mm][Pp]',
+                                 '[A-Za-z]{2}[0-9]{5}.*\.[Mm][Tt][Ll]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean_Standard\.[Tt][Ss][Bb]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean_Standard\.[Pp][Dd][Ff]',
+                                 '[A-Za-z]{2}[0-9]{5}.*Clean_Standard\.[Tt][Xx][Tt]'
                                   ],
 
                      'DentalImpression':['[A-Za-z]{2}[0-9]{5}MAND\.[Ss][Tt][Ll]',
                                          '[A-Za-z]{2}[0-9]{5}MAX\.[Ss][Tt][Ll]'],
 
-                     'HandScan':['[A-Za-z]{2}[0-9]{5}HSN\.[Tt][Ii][Tf]',
-                                 '[A-Za-z]{2}[0-9]{5}HSN_Left\.[Tt][Pp][Ss]', 
-                                 '[A-Za-z]{2}[0-9]{5}HSN_Right\.[Tt][Pp][Ss]'],
+                     'HandScan':['[A-Za-z]{2}[0-9]{5}.*HSN.*\.[Tt][Ii][Tf]',
+                                 '[A-Za-z]{2}[0-9]{5}.*HSN.*Left.*\.[Tt][Pp][Ss]', 
+                                 '[A-Za-z]{2}[0-9]{5}.*HSN.*Right.*\.[Tt][Pp][Ss]'],
 
-                     'SpeechVideos':['[A-Za-z]{2}[0-9]{5}_ID\.[Mm][Oo][Vv]',
-                                     '[A-Za-z]{2}[0-9]{5}_ST\.[Mm][Oo][Vv]', 
-                                     '[A-Za-z]{2}[0-9]{5}_SP\.[Mm][Oo][Vv]']
+                     'SpeechVideos':['[A-Za-z]{2}[0-9]{5}.*ID.*\.[Mm][Oo][Vv]',
+                                     '[A-Za-z]{2}[0-9]{5}.*ST.*\.[Mm][Oo][Vv]', 
+                                     '[A-Za-z]{2}[0-9]{5}.*SP.*\.[Mm][Oo][Vv]']
                      },
                 'P:': 
                     {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]'],
@@ -401,19 +411,38 @@ def check_contents(drive, phenotype, studyID=''):
 
                      'IntraoralPhotos':['[A-Za-z]{2}[0-9]{5}t[0-9]{1,2}.[Jj][Pp][Gg]'],
 
-                     'PalateVideo':['[A-Za-z]{2}[0-9]{5}PAL.*\.[Mm][Oo][Vv]']
+                     'PalateVideo':['[A-Za-z]{2}[0-9]{5}PAL.*\.[Mm][Oo][Vv]'],
+
+                     'DentalImpression':['[A-Za-z]{2}[0-9]{5}MAND\.[Ss][Tt][Ll]',
+                                         '[A-Za-z]{2}[0-9]{5}MANDraw\.[Ss][Tt][Ll]',
+                                         '[A-Za-z]{2}[0-9]{5}MAX\.[Ss][Tt][Ll]',
+                                         '[A-Za-z]{2}[0-9]{5}MAXraw\.[Ss][Tt][Ll]'],
+
+                     'HandScan':['[A-Za-z]{2}[0-9]{5}.*HSN.*\.[Tt][Ii][Tf]'],
+
+                     'SpeechVideos':['[A-Za-z]{2}[0-9]{5}.*ID.*\.[Mm][Oo][Vv]',
+                                     '[A-Za-z]{2}[0-9]{5}.*ST.*\.[Mm][Oo][Vv]', 
+                                     '[A-Za-z]{2}[0-9]{5}.*SP.*\.[Mm][Oo][Vv]'],
+
+                     'Photos3D':['[A-Za-z]{2}[0-9]{5}.*\.[Tt][Ss][Bb]',
+                                 '[A-Za-z]{2}[0-9]{5}.*\.[Tt][Oo][Mm]'
+                                  ],
+
+
                      }
                 } 
 
-    # Handles 'LipUltrasound', 'LHFPhoto', 'IntraoralPhotos', 'PalateVideo' Contents Check  both R: and P: drives  
-    if phenotype in ['LipUltrasound', 'LHFPhoto', 'IntraoralPhotos', 'PalateVideo']:  
-        on_fileserver = [] # list of those that exist on fileserver
-        should_have = [] # list of files they should have
-        missing = [] # list of missing files
+    on_fileserver = [] # list of those that exist on fileserver
+    should_have = [] # list of files they should have
+    missing = [] # list of missing files
 
-        text.delete('4.0','end')
-        text.insert(INSERT, '\nSearching File Server for files\n')
+    text.delete('4.0','end')
+    text.insert(INSERT, '\nSearching File Server for files\n')
       
+    
+
+    # Handles 'LipUltrasound', 'LHFPhoto', 'PalateVideo' Contents Check  both R: and P: drives  
+    if phenotype in ['LipUltrasound', 'LHFPhoto', 'PalateVideo']:  
         for root, dirs, files in os.walk(path):
             for file in files:
                 for pattern in contents_dic[drive][phenotype]:
@@ -430,7 +459,6 @@ def check_contents(drive, phenotype, studyID=''):
         for studyID in studyIDs_in_SQL:
             should_have.append(studyID[0])
 
-        
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
 
         text.delete('4.0','end')  
@@ -439,7 +467,7 @@ def check_contents(drive, phenotype, studyID=''):
             for studyID in missing:
                 if phenotype == 'LipUltrasound':
                     file_extenstion = '.mp4'
-                elif phenotype in ['LHFPhoto', 'IntraoralPhotos']: 
+                elif phenotype in 'LHFPhoto': 
                     file_extenstion = '.jpg'
                 elif phenotype == 'PalateVideo':
                     file_extenstion = '.mov'
@@ -458,7 +486,288 @@ def check_contents(drive, phenotype, studyID=''):
             text.see(END)
             text.update()
             print('All subjects have the correct files!')
-   
+
+    # Handles IntraoralPhotos Contents Check  both R: and P: drives 
+    elif  phenotype == 'IntraoralPhotos':
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                for pattern in contents_dic[drive][phenotype]:
+                    match = re.findall(pattern, file)
+                    if match:
+                        print('Appending', file)                        
+                        text.insert(INSERT, '\nFile: {0}\n'.format(file))
+                        text.see(END)
+                        text.update()
+                        text.delete('5.0','end')
+                        on_fileserver.append(file)
+
+        for studyID in studyIDs_in_SQL:
+            for num in range(1, 8):
+                should_have_IOP_file = '{0}t{1}.JPG'.format(studyID[0], num)
+                should_have.append(should_have_IOP_file)
+
+        missing = sorted(list(set(should_have).difference(set(on_fileserver))))
+
+        text.delete('4.0','end')  
+        text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        if len(missing) >0:
+            for studyID in missing:
+                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.see(END)
+                text.update()
+                print(studyID, 'is missing')
+            text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
+            print('Total number of files missing: {}'.format(len(missing))) 
+
+    # Handles DentalImpression Contents Check  both R: and P: drives 
+    elif phenotype == 'DentalImpression':
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                for pattern in contents_dic[drive][phenotype]:
+                    match = re.findall(pattern, file)
+                    if match:
+                        print('Appending', file)                        
+                        text.insert(INSERT, '\nFile: {0}\n'.format(file))
+                        text.see(END)
+                        text.update()
+                        text.delete('5.0','end')
+                        on_fileserver.append(file)
+
+        for studyID in studyIDs_in_SQL:
+            should_have_MAND = '{}MAND.stl'.format(studyID[0])
+            should_have.append(should_have_MAND)
+            should_have_MAX = '{}MAX.stl'.format(studyID[0])
+            should_have.append(should_have_MAX)
+            if drive == 'P:':
+                should_have_MANDraw = '{}MANDraw.stl'.format(studyID[0])
+                should_have.append(should_have_MANDraw)
+                should_have_MAXraw = '{}MAXraw.stl'.format(studyID[0])
+                should_have.append(should_have_MAXraw)
+
+        missing = sorted(list(set(should_have).difference(set(on_fileserver))))
+
+        text.delete('4.0','end')  
+        text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        if len(missing) >0:
+            for studyID in missing:
+                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.see(END)
+                text.update()
+                print(studyID, 'is missing')
+            text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
+            print('Total number of files missing: {}'.format(len(missing))) 
+
+
+    # Handles HandScan Contents Check  both R: and P: drives 
+    elif phenotype == 'HandScan':
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                for pattern in contents_dic[drive][phenotype]:
+                    match = re.findall(pattern, file)
+                    if match:
+                        study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
+                        if '.tif' in file:
+                            file = study_ID_in_file[0] + 'HSN.tif'
+                        elif 'Left' in file:
+                            file = study_ID_in_file[0] + 'HSN_Left.TPS'
+                        elif 'Right' in file:
+                            file = study_ID_in_file[0] + 'HSN_Right.TPS'
+                        else:
+                            pass
+                        print('Appending', file)                        
+                        text.insert(INSERT, '\nFile: {0}\n'.format(file))
+                        text.see(END)
+                        text.update()
+                        text.delete('5.0','end')
+                        on_fileserver.append(file)
+
+        for studyID in studyIDs_in_SQL:
+            should_have_HSNtif = '{}HSN.tif'.format(studyID[0])
+            should_have.append(should_have_HSNtif)
+            if drive=='R:':
+                should_have_HSNleft = '{}HSN_Left.TPS'.format(studyID[0]) 
+                should_have.append(should_have_HSNleft)
+                should_have_HSNright = '{}HSN_Right.TPS'.format(studyID[0])
+                should_have.append(should_have_HSNright)
+
+        missing = sorted(list(set(should_have).difference(set(on_fileserver))))
+
+        text.delete('4.0','end')  
+        text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        if len(missing) >0:
+            for studyID in missing:
+                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.see(END)
+                text.update()
+                print(studyID, 'is missing')
+            text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
+            print('Total number of files missing: {}'.format(len(missing))) 
+        else:
+            text.insert(INSERT, '\nAll subjects have the correct files!')
+            text.see(END)
+            text.update()
+
+    # Handles SpeechVideos Contents Check  both R: and P: drives 
+    elif phenotype == 'SpeechVideos':
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                for pattern in contents_dic[drive][phenotype]:
+                    match = re.findall(pattern, file)
+                    if match:
+                        study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
+                        if 'ID' in file.upper():
+                            file = study_ID_in_file[0] + '_ID.mov'
+                        elif 'ST' in file.upper():
+                            file = study_ID_in_file[0] + '_ST.mov'
+                        elif 'SP' in file.upper():
+                            file = study_ID_in_file[0] + '_SP.mov'
+                           
+                        else:
+                            pass
+                        print('Appending', file)                        
+                        text.insert(INSERT, '\nFile: {0}\n'.format(file))
+                        text.see(END)
+                        text.update()
+                        text.delete('5.0','end')
+                        on_fileserver.append(file)
+
+        for studyID in studyIDs_in_SQL:
+            if studyID[10] == 1:
+                should_have_ID = '{}_ID.mov'.format(studyID[0])
+                should_have.append(should_have_ID)
+            if studyID[11] == 1:
+                should_have_ST = '{}_ST.mov'.format(studyID[0]) 
+                should_have.append(should_have_ST)
+            if studyID[12] == 1:
+                should_have_SP = '{}_SP.mov'.format(studyID[0])
+                should_have.append(should_have_SP)
+
+        missing = sorted(list(set(should_have).difference(set(on_fileserver))))
+
+        text.delete('4.0','end')  
+        text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        if len(missing) >0:
+            for studyID in missing:
+                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.see(END)
+                text.update()
+                print(studyID, 'is missing')
+            text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
+            print('Total number of files missing: {}'.format(len(missing))) 
+        else:
+            text.insert(INSERT, '\nAll subjects have the correct files!')
+            text.see(END)
+            text.update()
+
+    # Handles Photos3D Contents Check  both R: and P: drives 
+    elif phenotype == 'Photos3D':
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                for pattern in contents_dic[drive][phenotype]:
+                    match = re.findall(pattern, file)
+                    if match:
+                        study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
+                        if 'tom' in file.lower():
+                            file = study_ID_in_file[0] + '.tom'
+                        elif 'clean.tsb' in file.lower():
+                            file = study_ID_in_file[0] + '_Clean.tsb'
+                        elif 'clean.obj' in file.lower():
+                            file = study_ID_in_file[0] + '_Clean.obj'
+                        elif 'clean.gif' in file.lower():
+                            file = study_ID_in_file[0] + '_Clean.gif'
+                        elif 'clean.mtl' in file.lower():
+                            file = study_ID_in_file[0] + '_Clean.mtl'
+                        elif 'clean.bmp' in file.lower():
+                            file = study_ID_in_file[0] + '_Clean.bmp'
+                        elif 'clean' in file.lower() and 'belgium.obj' in file.lower():
+                            file = study_ID_in_file[0] + '_Clean_Belgium.obj'
+                        elif 'tsb' in file.lower():
+                            file = study_ID_in_file[0] + '.tsb'
+                        elif 'obj' in file.lower():
+                            file = study_ID_in_file[0] + '.obj'
+                        elif 'mtl' in file.lower():
+                            file = study_ID_in_file[0] + '.mtl'
+                        elif '1.bmp' in file.lower():
+                            file = study_ID_in_file[0] + '1.bmp'
+                        elif '2.bmp' in file.lower():
+                            file = study_ID_in_file[0] + '2.bmp'
+                        elif '3.bmp' in file.lower():
+                            file = study_ID_in_file[0] + '3.bmp'
+                        elif 'clean_standard.tsb' in file.lower():
+                            file = study_ID_in_file[0] + 'Clean_Standard.tsb'
+                        elif 'clean_standard.pdf' in file.lower():
+                            file = study_ID_in_file[0] + 'Clean_Standard.pdf'
+                        elif 'clean_standard.txt' in file.lower():
+                            file = study_ID_in_file[0] + 'Clean_Standard.txt'
+
+                        else:
+                            pass
+                        print('Appending', file)                        
+                        text.insert(INSERT, '\nFile: {0}\n'.format(file))
+                        text.see(END)
+                        text.update()
+                        text.delete('5.0','end')
+                        on_fileserver.append(file)
+
+        for studyID in studyIDs_in_SQL:
+            if studyID[13] == '3dMD' and drive == 'P:':
+                should_have_TSB = '{}.tsb'.format(studyID[0])
+                should_have.append(should_have_TSB)
+
+            elif studyID[13] == '3dMD' and drive == 'R:':
+                should_have_TSB = '{}.tsb'.format(studyID[0])
+                should_have.append(should_have_TSB)
+                should_have_Clean_TSB = '{}_Clean.tsb'.format(studyID[0])
+                should_have.append(should_have_Clean_TSB)
+                should_have_Clean_OBJ = '{}_Clean.obj'.format(studyID[0])
+                should_have.append(should_have_Clean_OBJ)
+                should_have_Clean_GIF = '{}_Clean.gif'.format(studyID[0])
+                should_have.append(should_have_Clean_GIF)
+                should_have_Clean_MTL = '{}_Clean.mtl'.format(studyID[0])
+                should_have.append(should_have_Clean_MTL)
+                should_have_Clean_BMP = '{}_Clean.bmp'.format(studyID[0])
+                should_have.append(should_have_Clean_BMP)
+                should_have_Clean_Belgium = '{}_Clean_Belgium.obj'.format(studyID[0])
+                should_have.append(should_have_Clean_Belgium)
+
+            elif studyID[13] == 'Vectra' and drive == 'P:':
+                should_have_TOM = '{}.tom'.format(studyID[0])
+                should_have.append(should_have_TOM)
+
+            elif studyID[13] == 'Vectra' and drive == 'R:':
+                should_have_OBJ = '{}.obj'.format(studyID[0])
+                should_have.append(should_have_OBJ)
+                should_have_MTL = '{}.mtl'.format(studyID[0])
+                should_have.append(should_have_MTL)
+                for num in range(1,4):
+                    should_have_BMP = '{0}{1}.bmp'.format(studyID[0], str(num))
+                    should_have.append(should_have_BMP)
+                should_have_Clean_OBJ = '{}_Clean.obj'.format(studyID[0])
+                should_have.append(should_have_Clean_OBJ)
+                should_have_Clean_MTL = '{}_Clean.mtl'.format(studyID[0])
+                should_have.append(should_have_Clean_MTL)
+            else: 
+                pass
+
+        missing = sorted(list(set(should_have).difference(set(on_fileserver))))
+
+        text.delete('4.0','end')  
+        text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        if len(missing) >0:
+            for studyID in missing:
+                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.see(END)
+                text.update()
+                print(studyID, 'is missing')
+            text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
+            print('Total number of files missing: {}'.format(len(missing))) 
+        else:
+            text.insert(INSERT, '\nAll subjects have the correct files!')
+            text.see(END)
+            text.update()
+
+    else: 
+        pass
     text.configure(state='disabled')
 
 
@@ -547,3 +856,4 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
+
