@@ -856,4 +856,4 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
-
+ 
