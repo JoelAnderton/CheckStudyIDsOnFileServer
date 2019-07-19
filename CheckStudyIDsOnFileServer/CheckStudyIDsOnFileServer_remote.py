@@ -236,7 +236,7 @@ def check_folder(drive, phenotype, studyID = ''):
 
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert(INSERT, '**************************************************************************\nFolder Check for {0}: {1}\n**************************************************************************\n'.format(phenotype, path))
+    text.insert(INSERT, '**************************************************************************\nFolder Check for {0}: {1}\nCheck that the files are in the correct folders\n**************************************************************************\n'.format(phenotype, path))
     text.see(END)
     text.update()
     print('****************************************************************\nFiles in Correct Folders Check for: {0}\n****************************************************************'.format(phenotype))
@@ -249,12 +249,11 @@ def check_folder(drive, phenotype, studyID = ''):
                 
                 match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                 if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 
-                              'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4.24' in root):                
-                    text.insert(INSERT, '**************************************************************************\nFolder Check for {0}: {1}\n**************************************************************************\n'.format(phenotype, path))
-                    text.insert(INSERT, 'Checking that the files are in the correct folders for: {0}'.format(file[match.start():match.end()]))
+                              'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4.24' in root and not 'Raw' in root):                
+                    text.delete(5.0, 'end')
+                    text.insert(INSERT, '\nChecking folder: {0}'.format(file[match.start():match.end()]))
                     text.see(END)
                     text.update()
-                    text.delete('1.0','end')
                     print('Checking files for:', file[match.start():match.end()], end='\r')
                     if file[match.start():match.end()] not in root:
                        wrong_folder.append(os.path.join(root, file))
@@ -265,11 +264,10 @@ def check_folder(drive, phenotype, studyID = ''):
                     match = re.search("[A-Za-z]{2}[0-9]{5}", file) 
                     if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 
                                   'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4' in root): 
-                        text.insert(INSERT, '**************************************************************************\nFolder Check for {0}: {1}\n**************************************************************************\n'.format(phenotype, path))
-                        text.insert(INSERT, 'Folder check for: {0}'.format(file[match.start():match.end()]))
+                        text.delete('5.0','end')
+                        text.insert(INSERT, 'Checking folder: {0}'.format(file[match.start():match.end()]))
                         text.see(END)
                         text.update()
-                        text.delete('1.0','end')
                         print('Checking files for:', file[match.start():match.end()], end='\r')
                         if file[match.start():match.end()] not in root:
                            wrong_folder.append(os.path.join(root, file))
@@ -277,8 +275,8 @@ def check_folder(drive, phenotype, studyID = ''):
  
 
     if len(wrong_folder) >0:
-        text.insert(INSERT, '**************************************************************************\nFolder Check for {0}: {1}\n**************************************************************************\n'.format(phenotype, path))
-        text.insert(INSERT, 'Check that the file is in the correct folder for the following:\n')
+        text.delete(5.0, 'end')
+        text.insert(INSERT, '\nCheck that the file is in the correct folder for the following:\n')
         text.see(END)
         text.update()
         print('Check that the file is in the correct folder for the following:')
@@ -301,7 +299,7 @@ def check_folder(drive, phenotype, studyID = ''):
             diffs = [i for i in range(len(x)) if x[i] != y[i]]
             diff_list.append(diffs)
 
-        line = 5
+        line = 6
         for diffs, position in zip(diff_list, position_list):
                 #print(diffs, position)
                 for diff in diffs:
@@ -384,22 +382,26 @@ def check_spelling(drive, phenotype, studyID = ''):
     else:
         
         if studyID not in studyIDs_on_Server and studyID in only_StudyIDs:
+            text.delete(6.0, 'end')
             text.insert(INSERT, '\nStudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
             print('StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         elif studyID in studyIDs_on_Server and studyID not in only_StudyIDs:
+            text.delete(6.0, 'end')
             text.insert(INSERT, '\nStudyID: {0} is a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
             print('StudyID: {0} is NOT a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             print(studyID, folder_paths[studyID])
         elif studyID not in studyIDs_on_Server and studyID not in only_StudyIDs:
+            text.delete(6.0, 'end')
             text.insert(INSERT, '\nStudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
             print('StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         else:
+            text.delete(6.0, 'end')
             text.insert(INSERT, '\nStudyID: {0} is spelled correctly on server!'.format(studyID))
             text.see(END)
             text.update()
@@ -1207,4 +1209,5 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
+
 
