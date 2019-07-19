@@ -423,7 +423,7 @@ def check_contents(drive, phenotype, studyID=''):
     contents_dic = {'R:': 
                     {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]'],
 
-                    'LipPhotos':['[A-Za-z]{2}[0-9]{5}_LIL\.[Jj][Pp][Gg]',
+                    'LipPhotos':['[A-Za-z]{2}[0-9]{5}.*LIL.*\.[Jj][Pp][Gg]',
                                  '[A-Za-z]{2}[0-9]{5}[Pp][0-9]\.[Jj][Pp][Gg]',
                                  'LL_[A-Za-z]{2}[0-9]{5}_[Ii][Nn][Vv]\.[Jj][Pp][Gg]',
                                  'LL_[A-Za-z]{2}[0-9]{5}_[Nn][Oo][Rr]\.[Jj][Pp][Gg]',
@@ -1009,54 +1009,58 @@ def check_contents(drive, phenotype, studyID=''):
                             on_fileserver.append(file)
         else:
             for root, dirs, files in os.walk(path):
-                if studyID in root:
                     for file in files:
-                        for pattern in contents_dic[drive][phenotype]:
-                            match = re.findall(pattern, file)
-                            if match:
-                                study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
-                                if 'lil' in file.lower():
-                                    file = study_ID_in_file[0] + 'LIL.jpg'
-                                elif 'LL' in file and 'inv' in file.lower():
-                                    file = 'LL_' + study_ID_in_file[0] + '_inv.jpg'
-                                elif 'LL' in file and 'nor' in file.lower():
-                                    file = 'LL_' + study_ID_in_file[0] + '_nor.jpg'
-                                elif 'LL' in file and 'pco' in file.lower():
-                                    file = 'LL_' + study_ID_in_file[0] + '_pco.jpg'
-                                elif 'UL' in file and 'inv' in file.lower():
-                                    file = 'UL_' + study_ID_in_file[0] + '_inv.jpg'
-                                elif 'UL' in file and 'nor' in file.lower():
-                                    file = 'UL_' + study_ID_in_file[0] + '_nor.jpg'
-                                elif 'UL' in file and 'pco' in file.lower():
-                                    file = 'UL_' + study_ID_in_file[0] + '_pco.jpg'
-                                elif 'p1.jpg' in file.lower():
-                                    file = study_ID_in_file[0] + 'p1.jpg'
-                                elif 'p2.jpg' in file.lower():
-                                    file = study_ID_in_file[0] + 'p2.jpg'
-                                elif 'p3.jpg' in file.lower():
-                                    file = study_ID_in_file[0] + 'p3.jpg'
-                                elif 'p4.jpg' in file.lower():
-                                    file = study_ID_in_file[0] + 'p4.jpg'
-                                elif 'p5.jpg' in file.lower():
-                                    file = study_ID_in_file[0] + 'p5.jpg'
-                                elif 'p6.jpg' in file.lower():
-                                    file = study_ID_in_file[0] + 'p6.jpg'
-                                elif 'p7.jpg' in file.lower():
-                                    file = study_ID_in_file[0] + 'p7.jpg'
+                        if studyID in file:
+                            print(studyID, root, file)
+                            for pattern in contents_dic[drive][phenotype]:
+                                match = re.findall(pattern, file)
+                                if match:
+                                    study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
+                                    print('LIL test:', file.lower())
+                                    if 'lil' in file.lower():
+                                        file = study_ID_in_file[0] + 'LIL.jpg'
+                                        print('New LIL: ', file)
+                                    elif 'LL' in file and 'inv' in file.lower():
+                                        file = 'LL_' + study_ID_in_file[0] + '_inv.jpg'
+                                    elif 'LL' in file and 'nor' in file.lower():
+                                        file = 'LL_' + study_ID_in_file[0] + '_nor.jpg'
+                                    elif 'LL' in file and 'pco' in file.lower():
+                                        file = 'LL_' + study_ID_in_file[0] + '_pco.jpg'
+                                    elif 'UL' in file and 'inv' in file.lower():
+                                        file = 'UL_' + study_ID_in_file[0] + '_inv.jpg'
+                                    elif 'UL' in file and 'nor' in file.lower():
+                                        file = 'UL_' + study_ID_in_file[0] + '_nor.jpg'
+                                    elif 'UL' in file and 'pco' in file.lower():
+                                        file = 'UL_' + study_ID_in_file[0] + '_pco.jpg'
+                                    elif 'p1.jpg' in file.lower():
+                                        file = study_ID_in_file[0] + 'p1.jpg'
+                                    elif 'p2.jpg' in file.lower():
+                                        file = study_ID_in_file[0] + 'p2.jpg'
+                                    elif 'p3.jpg' in file.lower():
+                                        file = study_ID_in_file[0] + 'p3.jpg'
+                                    elif 'p4.jpg' in file.lower():
+                                        file = study_ID_in_file[0] + 'p4.jpg'
+                                    elif 'p5.jpg' in file.lower():
+                                        file = study_ID_in_file[0] + 'p5.jpg'
+                                    elif 'p6.jpg' in file.lower():
+                                        file = study_ID_in_file[0] + 'p6.jpg'
+                                    elif 'p7.jpg' in file.lower():
+                                        file = study_ID_in_file[0] + 'p7.jpg'
 
-                                print('Appending', file)                        
-                                text.insert(INSERT, '\nFile: {0}\n'.format(file))
-                                text.see(END)
-                                text.update()
-                                text.delete('5.0','end')
-                                on_fileserver.append(file)
+                                    print('Appending', file)                        
+                                    text.insert(INSERT, '\nFile: {0}\n'.format(file))
+                                    text.see(END)
+                                    text.update()
+                                    text.delete('5.0','end')
+                                    on_fileserver.append(file)
 
         # R: drive files
         if drive == 'R:':
 
             # To Process StudyIDs
             try:
-                toProcess_studyID_list = get_lipToProcess_studyIDs_SQL(phenotype, studyID='') # get the ToProcess StudyIDs
+                print(studyID)
+                toProcess_studyID_list = get_lipToProcess_studyIDs_SQL(phenotype, studyID) # get the ToProcess StudyIDs
             except:
                 toProcess_studyID_list = []
                 print('get_lipToProcess_studyIDs_SQL function did not work as excepted')
@@ -1066,6 +1070,7 @@ def check_contents(drive, phenotype, studyID=''):
                     should_have_toProcess_LIL = studyID_toProcess[0] + 'LIL.jpg'
                     should_have.append(should_have_toProcess_LIL)
                     for num in range(1, 8):
+                        print(studyID_toProcess[0] + 'p{0}.jpg'.format(num))
                         should_have_toProcess_p = studyID_toProcess[0] + 'p{0}.jpg'.format(num)
                         should_have.append(should_have_toProcess_p)
 
@@ -1082,7 +1087,7 @@ def check_contents(drive, phenotype, studyID=''):
                 should_have.append(should_have_UL_NOR)
                 should_have_UL_PCO = 'UL_{}_pco.jpg'.format(studyID[0])
                 should_have.append(should_have_UL_PCO)
-        
+        print(should_have)
         # P: drive files
         if drive == 'P:':
             for studyID in studyIDs_in_SQL:
@@ -1095,9 +1100,11 @@ def check_contents(drive, phenotype, studyID=''):
                 should_have.append(should_have_LL_PSD)
                 should_have_LL_PSD = 'UL_{}.psd'.format(studyID[0])
                 should_have.append(should_have_LL_PSD)
-
+        print(set(should_have))
+        print()
+        print(set(on_fileserver))
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
-
+        print(missing)
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
         if len(missing) >0:
