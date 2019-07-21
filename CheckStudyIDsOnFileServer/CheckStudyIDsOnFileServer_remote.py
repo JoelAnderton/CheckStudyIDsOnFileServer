@@ -11,10 +11,10 @@
 # Updates:
 #
 #####################################################################################################################################
-
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter.filedialog import asksaveasfile 
 import pypyodbc
 import os
 import re
@@ -77,7 +77,7 @@ def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
 
     studyIDs_in_SQl_toProcess = []
     text.delete('5.0','end')
-    text.insert(INSERT, '\nSearching for StudyIDs on SQL:\n')
+    text.insert(INSERT, '\nGathering StudyIDs from SQL:\n')
     for row in cur.fetchall():
         #print(row)
         text.insert(INSERT, '\nStudyID: {0}'.format(row[0:][0]))
@@ -174,7 +174,7 @@ def get_studyIDs_SQL(phenotype, studyID=''):
 
     studyIDs_in_SQl_list = []
     text.delete('5.0','end')
-    text.insert(INSERT, '\nSearching for StudyIDs on SQL:\n')
+    text.insert(INSERT, '\nGathering StudyIDs from SQL:\n')
     for row in cur.fetchall():
         #print(row)
         text.insert(INSERT, '\nStudyID: {0}'.format(row[0:][0]))
@@ -334,7 +334,7 @@ def check_folder(drive, phenotype, studyID = ''):
     text.configure(state='disabled')
 
 def check_spelling(drive, phenotype, studyID = ''):
-    """Check if file has the correct spelling for a StudyID"""
+    """Check if folder has the correct spelling for a StudyID"""
     path = get_file_paths(drive, phenotype)
     text.config(state='normal')
     text.delete('1.0', 'end')
@@ -1139,9 +1139,29 @@ def get_submit():
     else:
         messagebox.showwarning('Check', 'Must choose a "Check" to run')
 
+def get_savelog():
+    log_contents = text.get(1.0, 'end')
+    print(log_contents)
+    with asksaveasfile(title='Save Output', mode='a+', defaultextension='.csv', filetypes =(('csv', '.csv'),('txt', '.txt'))) as create_log:
+        for line in log_contents:
+            create_log.writelines(line)
+
 
 def get_about():
-    pass
+    messagebox.showinfo('About', '''
+    Created by: Joel Anderton
+    Created date: 7/22/2019
+
+    OFC2 Check files on file server
+    Version 1.0
+    
+    Only works for the OFC2 Study
+    Checks the following:
+       1. Folders Check - File in correct folder.
+       2. Spelling Check - Folder has an acceptable StudyID.
+       3. Contents Check - Subject contains all necessary files.
+
+    ''')
 
 
 root = Tk()
@@ -1156,7 +1176,7 @@ check = StringVar()
 
 root.title('Phenotype File and Folder Checking v. 1.0')
 
-frame = Frame(root, width=200, height=290, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
+frame = Frame(root, width=200, height=310, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
 frame.place(x=30, y=160)
 
 #Drive Combobox
@@ -1189,13 +1209,17 @@ studyID_entry.place(x=110, y=300)
 submit_button = ttk.Button(root, text='Submit', width=10, command=get_submit)
 submit_button.place(x=90, y=340)
 
+#Save Log Button
+savelog_button = ttk.Button(root, text='Save Log', width=10, command=get_savelog)
+savelog_button.place(x=90, y=370)
+
 # Close button
 closeButton = ttk.Button(root, text='Close', width=10, command=root.destroy)
-closeButton.place(x=90, y=370)
+closeButton.place(x=90, y=400)
 
 # About button
 aboutButton = ttk.Button(root, text='About', width=10, command=get_about)
-aboutButton.place(x=90, y=400)
+aboutButton.place(x=90, y=430)
 
 # Scroll bar
 scroll = Scrollbar(root)
@@ -1204,10 +1228,8 @@ scroll.pack(side=RIGHT, fill=Y)
 #Output window
 text_label = Label(root, text='Results')
 text_label.place(x=250, y=20)
-text = Text(root, width=140, height=40, borderwidth=3, wrap='word', relief='groove', yscrollcommand=scroll.set)
+text = Text(root, width=140, height=40, borderwidth=3, font=('calibri',11), wrap='word', relief='groove', yscrollcommand=scroll.set)
 text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
-
-
