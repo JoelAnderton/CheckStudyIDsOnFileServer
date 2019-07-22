@@ -375,7 +375,7 @@ def check_spelling(drive, phenotype, studyID = ''):
                text.update()
                #print(file, folder_paths[file] )
         else:
-            text.insert(INSERT, '\nAll files are spelled correct!')
+            text.insert(INSERT, '\nAll folders are spelled correctly!')
             text.see(END)
             text.update()
             #print('All files are spelled correct!')
