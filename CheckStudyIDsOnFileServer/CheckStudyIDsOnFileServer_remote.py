@@ -338,7 +338,7 @@ def check_spelling(drive, phenotype, studyID = ''):
     path = get_file_paths(drive, phenotype)
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert(INSERT, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nSpelling Check for {0}: {1}\nCheck if file has the correct spelling for a StudyID\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n'.format(phenotype, path))
+    text.insert(INSERT, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nSpelling Check for {0}: {1}\nCheck if folder has the correct spelling for a StudyID\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n'.format(phenotype, path))
     text.see(END)
     text.update()
     #print('************************************\nSpelling Check\n************************************')
