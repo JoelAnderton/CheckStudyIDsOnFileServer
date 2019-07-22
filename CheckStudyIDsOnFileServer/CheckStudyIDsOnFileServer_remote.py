@@ -265,7 +265,7 @@ def check_folder(drive, phenotype, studyID = ''):
                     if match and ('Library' in root or '1ToProcess' in root or '1New_Data_Drop' in root or 'Colombia' in root or 'Lancaster' in root or 'Philippines' in root or 
                                   'Pittsburgh' in root or 'Puerto Rico' in root) and (not 'Logs' in root and not 'AhmedMamdouh' in root and not 'SteveMiller' in root and not 'DentalScansBelgium2019.4' in root): 
                         text.delete('5.0','end')
-                        text.insert(INSERT, 'Checking folder: {0}'.format(file[match.start():match.end()]))
+                        text.insert(INSERT, '\nChecking folder: {0}'.format(file[match.start():match.end()]))
                         text.see(END)
                         text.update()
                         #print('Checking files for:', file[match.start():match.end()], end='\r')
