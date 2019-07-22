@@ -46,7 +46,7 @@ def sql_connection2():
 def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
     """Finds completed StudyIDs in SQL"""
     text.config(state='normal')
-    print('Searching SQL for Lip Photo StudyIDs To Process')
+    #print('Searching SQL for Lip Photo StudyIDs To Process')
     studyID_list = []
     studyID_list.append(studyID)
     connection = sql_connection2()
@@ -84,12 +84,12 @@ def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
         text.see(END)
         text.update()
         text.delete('6.0','end')
-        print('StudyID: {0}'.format(row[0:][0]), end='\r')
+        #print('StudyID: {0}'.format(row[0:][0]), end='\r')
         studyIDs_in_SQl_toProcess.append(row)
     text.delete('6.0','end')
     text.insert('6.0', '\nStudyID: Done!       ')
-    print('StudyID: Done!     ')
-    print()
+    #print('StudyID: Done!     ')
+    #print()
     return studyIDs_in_SQl_toProcess
 
 def get_file_paths(drive, phenotype):
@@ -114,14 +114,14 @@ def get_file_paths(drive, phenotype):
                            'SpeechVideos':r'P:\OFC2\Phenotype Images Archive\SpeechVideos'
                           }
                      }
-    print(phenotype_paths[drive][phenotype])
+    #print(phenotype_paths[drive][phenotype])
     return phenotype_paths[drive][phenotype]
 
 
 def get_studyIDs_SQL(phenotype, studyID=''):
     """Finds completed StudyIDs in SQL"""
     text.config(state='normal')
-    print('Searching SQL for StudyIDs')
+    #print('Searching SQL for StudyIDs')
     studyID_list = []
     studyID_list.append(studyID)
     connection = sql_connection()
@@ -181,19 +181,19 @@ def get_studyIDs_SQL(phenotype, studyID=''):
         text.see(END)
         text.update()
         text.delete('6.0','end')
-        print('StudyID: {0}'.format(row[0:][0]), end='\r')
+        #print('StudyID: {0}'.format(row[0:][0]), end='\r')
         studyIDs_in_SQl_list.append(row)
     text.delete('6.0','end')
     text.insert('6.0', '\nStudyID: Done!       ')
-    print('StudyID: Done!     ')
-    print()
+    #print('StudyID: Done!     ')
+    #print()
     return studyIDs_in_SQl_list
 
 
 def get_studyIDs_Server(drive, phenotype, studyID = ''):
     """Finds StudyIDs used on file server"""
 
-    print('Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
+    #print('Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
  
     path = get_file_paths(drive, phenotype)
 
@@ -208,7 +208,7 @@ def get_studyIDs_Server(drive, phenotype, studyID = ''):
                     text.see(END)
                     text.update()
                     text.delete('6.0','end')
-                    print('StudyID:', dir[match.start():match.end()], end='\r')
+                    #print('StudyID:', dir[match.start():match.end()], end='\r')
                     studyID_list.append({dir[match.start():match.end()]:os.path.join(root, dir[match.start():match.end()])}) 
     else:
         for root, dirs, files in os.walk(path):
@@ -220,12 +220,12 @@ def get_studyIDs_Server(drive, phenotype, studyID = ''):
                         text.see(END)
                         text.update()
                         text.delete('6.0','end')
-                        print('StudyID:', dir[match.start():match.end()], end='\r')
+                        #print('StudyID:', dir[match.start():match.end()], end='\r')
                         studyID_list.append({dir[match.start():match.end()]:os.path.join(root, dir[match.start():match.end()])})
     text.delete('6.0','end')
     #text.insert('5.0', 'StudyID: Done!            ')
     #print('StudyID: Done!     ')
-    print()
+    #print()
     return studyID_list
 
 
@@ -239,7 +239,7 @@ def check_folder(drive, phenotype, studyID = ''):
     text.insert(INSERT, '**************************************************************************\nFolder Check for {0}: {1}\nCheck that the files are in the correct folders\n**************************************************************************\n'.format(phenotype, path))
     text.see(END)
     text.update()
-    print('****************************************************************\nFiles in Correct Folders Check for: {0}\n****************************************************************'.format(phenotype))
+    #print('****************************************************************\nFiles in Correct Folders Check for: {0}\n****************************************************************'.format(phenotype))
         
     wrong_folder = []
 
@@ -254,7 +254,7 @@ def check_folder(drive, phenotype, studyID = ''):
                     text.insert(INSERT, '\nChecking folder: {0}'.format(file[match.start():match.end()]))
                     text.see(END)
                     text.update()
-                    print('Checking files for:', file[match.start():match.end()], end='\r')
+                    #print('Checking files for:', file[match.start():match.end()], end='\r')
                     if file[match.start():match.end()] not in root:
                        wrong_folder.append(os.path.join(root, file))
     else:
@@ -268,7 +268,7 @@ def check_folder(drive, phenotype, studyID = ''):
                         text.insert(INSERT, 'Checking folder: {0}'.format(file[match.start():match.end()]))
                         text.see(END)
                         text.update()
-                        print('Checking files for:', file[match.start():match.end()], end='\r')
+                        #print('Checking files for:', file[match.start():match.end()], end='\r')
                         if file[match.start():match.end()] not in root:
                            wrong_folder.append(os.path.join(root, file))
 
@@ -279,7 +279,7 @@ def check_folder(drive, phenotype, studyID = ''):
         text.insert(INSERT, '\nCheck that the file is in the correct folder for the following:\n')
         text.see(END)
         text.update()
-        print('Check that the file is in the correct folder for the following:')
+        #print('Check that the file is in the correct folder for the following:')
 
         cases = []
         position_list = []
@@ -326,11 +326,11 @@ def check_folder(drive, phenotype, studyID = ''):
                         text.tag_config('diff2{0}{1}'.format(line, diff + position), background='light sky blue')
                 line += 1
     else:
-        text.insert(INSERT, '**************************************************************************\nFolder Check for {0}: {1}\n**************************************************************************\n'.format(phenotype, path))
-        text.insert(INSERT, 'All files are in their correct folders!')
+        text.delete(5.0, 'end')
+        text.insert(INSERT, '\nAll files are in their correct folders!')
         text.see(END)
         text.update()
-        print('All files are in their correct folders!')
+        #print('All files are in their correct folders!')
     text.configure(state='disabled')
 
 def check_spelling(drive, phenotype, studyID = ''):
@@ -338,10 +338,10 @@ def check_spelling(drive, phenotype, studyID = ''):
     path = get_file_paths(drive, phenotype)
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert(INSERT, '**************************************************************************\nSpelling Check for {0}: {1}\nCheck if file has the correct spelling for a StudyID\n**************************************************************************\n'.format(phenotype, path))
+    text.insert(INSERT, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nSpelling Check for {0}: {1}\nCheck if file has the correct spelling for a StudyID\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n'.format(phenotype, path))
     text.see(END)
     text.update()
-    print('************************************\nSpelling Check\n************************************')
+    #print('************************************\nSpelling Check\n************************************')
     diff = []
     studyIDs_and_paths = get_studyIDs_Server(drive=drive, phenotype=phenotype, studyID=studyID)
 
@@ -368,17 +368,17 @@ def check_spelling(drive, phenotype, studyID = ''):
             text.insert('5.0', '\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
             text.see(END)
             text.update()
-            print('List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
+            #print('List of StudyIDs that should not have completed {0}.\nCheck the Individual Checklist and that the StudyID is spelled correctly:\n'.format(phenotype))
             for file in diff:
                text.insert(INSERT,'{0} : {1}\n'.format(file,folder_paths[file] ))
                text.see(END)
                text.update()
-               print(file, folder_paths[file] )
+               #print(file, folder_paths[file] )
         else:
             text.insert(INSERT, '\nAll files are spelled correct!')
             text.see(END)
             text.update()
-            print('All files are spelled correct!')
+            #print('All files are spelled correct!')
     else:
         
         if studyID not in studyIDs_on_Server and studyID in only_StudyIDs:
@@ -386,27 +386,27 @@ def check_spelling(drive, phenotype, studyID = ''):
             text.insert(INSERT, '\nStudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
-            print('StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
+            #print('StudyID: {0} is a valid StudyID, but DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         elif studyID in studyIDs_on_Server and studyID not in only_StudyIDs:
             text.delete(6.0, 'end')
             text.insert(INSERT, '\nStudyID: {0} is a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
-            print('StudyID: {0} is NOT a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
-            print(studyID, folder_paths[studyID])
+            #print('StudyID: {0} is NOT a valid StudyID, but DOES exist in the {1} phenotype folder'.format(studyID, phenotype))
+            #print(studyID, folder_paths[studyID])
         elif studyID not in studyIDs_on_Server and studyID not in only_StudyIDs:
             text.delete(6.0, 'end')
             text.insert(INSERT, '\nStudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
             text.see(END)
             text.update()
-            print('StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
+            #print('StudyID: {0} is NOT a valid StudyID and DOES NOT exist in the {1} phenotype folder'.format(studyID, phenotype))
         else:
             text.delete(6.0, 'end')
             text.insert(INSERT, '\nStudyID: {0} is spelled correctly on server!'.format(studyID))
             text.see(END)
             text.update()
-            print('StudyID: {0} is spelled correctly on server!'.format(studyID))
-            print(studyID, folder_paths[studyID])
+            #print('StudyID: {0} is spelled correctly on server!'.format(studyID))
+            #print(studyID, folder_paths[studyID])
 
     text.configure(state='disabled')
 
@@ -416,7 +416,7 @@ def check_contents(drive, phenotype, studyID=''):
 
     text.config(state='normal')
     text.delete('1.0', 'end')
-    text.insert(INSERT, '**************************************************************************\nCheck Contents for {0}: {1}\nCheck that the subject has all the correct files they are supposed to have.\n**************************************************************************\n'.format(phenotype, path))
+    text.insert(INSERT, '==========================================================================\nCheck Contents for {0}: {1}\nCheck that the subject has all the correct files they are supposed to have.\n==========================================================================\n'.format(phenotype, path))
     text.see(END)
     text.update()
 
@@ -514,7 +514,7 @@ def check_contents(drive, phenotype, studyID=''):
                         match = re.findall(pattern, file)
                         if match:
                             study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
-                            print('Appending', study_ID_in_file[0], file)                        
+                            #print('Appending', study_ID_in_file[0], file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
                             text.update()
@@ -528,7 +528,7 @@ def check_contents(drive, phenotype, studyID=''):
                             match = re.findall(pattern, file)
                             if match:
                                 study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
-                                print('Appending', study_ID_in_file[0], file)                        
+                                #print('Appending', study_ID_in_file[0], file)                        
                                 text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                 text.see(END)
                                 text.update()
@@ -556,15 +556,15 @@ def check_contents(drive, phenotype, studyID=''):
                 text.insert(INSERT,'{0} is missing a {1} file\n'.format(studyID, file_extenstion))
                 text.see(END)
                 text.update()
-                print(studyID, 'is missing an .mp4 file')
+                #print(studyID, 'is missing an .mp4 file')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing))) 
                     
         else:
             text.insert(INSERT, '\nAll subjects have the correct files!')
             text.see(END)
             text.update()
-            print('All subjects have the correct files!')
+            #print('All subjects have the correct files!')
 
     # Handles IntraoralPhotos Contents Check  both R: and P: drives 
     elif  phenotype == 'IntraoralPhotos':
@@ -574,7 +574,7 @@ def check_contents(drive, phenotype, studyID=''):
                     for pattern in contents_dic[drive][phenotype]:
                         match = re.findall(pattern, file)
                         if match:
-                            print('Appending', file)                        
+                            #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
                             text.update()
@@ -587,7 +587,7 @@ def check_contents(drive, phenotype, studyID=''):
                         for pattern in contents_dic[drive][phenotype]:
                             match = re.findall(pattern, file)
                             if match:
-                                print('Appending', file)                        
+                                #print('Appending', file)                        
                                 text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                 text.see(END)
                                 text.update()
@@ -608,9 +608,9 @@ def check_contents(drive, phenotype, studyID=''):
                 text.insert(INSERT,'{0} is missing\n'.format(studyID))
                 text.see(END)
                 text.update()
-                print(studyID, 'is missing')
+                #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing))) 
 
     # Handles DentalImpression Contents Check  both R: and P: drives 
     elif phenotype == 'DentalImpression':
@@ -620,7 +620,7 @@ def check_contents(drive, phenotype, studyID=''):
                     for pattern in contents_dic[drive][phenotype]:
                         match = re.findall(pattern, file)
                         if match:
-                            print('Appending', file)                        
+                            #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
                             text.update()
@@ -633,7 +633,7 @@ def check_contents(drive, phenotype, studyID=''):
                         for pattern in contents_dic[drive][phenotype]:
                             match = re.findall(pattern, file)
                             if match:
-                                print('Appending', file)                        
+                                #print('Appending', file)                        
                                 text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                 text.see(END)
                                 text.update()
@@ -660,9 +660,9 @@ def check_contents(drive, phenotype, studyID=''):
                 text.insert(INSERT,'{0} is missing\n'.format(studyID))
                 text.see(END)
                 text.update()
-                print(studyID, 'is missing')
+                #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing))) 
 
     # Handles HandScan Contents Check  both R: and P: drives 
     elif phenotype == 'HandScan':
@@ -681,7 +681,7 @@ def check_contents(drive, phenotype, studyID=''):
                                 file = study_ID_in_file[0] + 'HSN_Right.TPS'
                             else:
                                 pass
-                            print('Appending', file)                        
+                            #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
                             text.update()
@@ -703,7 +703,7 @@ def check_contents(drive, phenotype, studyID=''):
                                     file = study_ID_in_file[0] + 'HSN_Right.TPS'
                                 else:
                                     pass
-                                print('Appending', file)                        
+                                #print('Appending', file)                        
                                 text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                 text.see(END)
                                 text.update()
@@ -728,9 +728,9 @@ def check_contents(drive, phenotype, studyID=''):
                 text.insert(INSERT,'{0} is missing\n'.format(studyID))
                 text.see(END)
                 text.update()
-                print(studyID, 'is missing')
+                #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing))) 
         else:
             text.insert(INSERT, '\nAll subjects have the correct files!')
             text.see(END)
@@ -751,7 +751,7 @@ def check_contents(drive, phenotype, studyID=''):
                                 file = study_ID_in_file[0] + '_ST.mov'
                             elif 'SP' in file.upper():
                                 file = study_ID_in_file[0] + '_SP.mov'
-                            print('Appending', file)                        
+                            #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
                             text.update()
@@ -771,7 +771,7 @@ def check_contents(drive, phenotype, studyID=''):
                                     file = study_ID_in_file[0] + '_ST.mov'
                                 elif 'SP' in file.upper():
                                     file = study_ID_in_file[0] + '_SP.mov'
-                                print('Appending', file)                        
+                               #print('Appending', file)                        
                                 text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                 text.see(END)
                                 text.update()
@@ -799,9 +799,9 @@ def check_contents(drive, phenotype, studyID=''):
                 text.insert(INSERT,'{0} is missing\n'.format(studyID))
                 text.see(END)
                 text.update()
-                print(studyID, 'is missing')
+                #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing))) 
         else:
             text.insert(INSERT, '\nAll subjects have the correct files!')
             text.see(END)
@@ -849,7 +849,7 @@ def check_contents(drive, phenotype, studyID=''):
                             elif '3.bmp' in file.lower():
                                 file = study_ID_in_file[0] + '3.bmp'
 
-                            print('Appending', file)                        
+                            #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
                             text.update()
@@ -896,7 +896,7 @@ def check_contents(drive, phenotype, studyID=''):
                                 elif '3.bmp' in file.lower():
                                     file = study_ID_in_file[0] + '3.bmp'
 
-                                print('Appending', file)                        
+                                #print('Appending', file)                        
                                 text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                 text.see(END)
                                 text.update()
@@ -957,9 +957,9 @@ def check_contents(drive, phenotype, studyID=''):
                 text.insert(INSERT,'{0} is missing\n'.format(studyID))
                 text.see(END)
                 text.update()
-                print(studyID, 'is missing')
+                #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing))) 
         else:
             text.insert(INSERT, '\nAll subjects have the correct files!')
             text.see(END)
@@ -1003,7 +1003,7 @@ def check_contents(drive, phenotype, studyID=''):
                             elif 'p7.jpg' in file.lower():
                                 file = study_ID_in_file[0] + 'p7.jpg'
 
-                            print('Appending', file)                        
+                            #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
                             text.update()
@@ -1013,15 +1013,15 @@ def check_contents(drive, phenotype, studyID=''):
             for root, dirs, files in os.walk(path):
                     for file in files:
                         if studyID in file:
-                            print(studyID, root, file)
+                            #print(studyID, root, file)
                             for pattern in contents_dic[drive][phenotype]:
                                 match = re.findall(pattern, file)
                                 if match:
                                     study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
-                                    print('LIL test:', file.lower())
+                                    #print('LIL test:', file.lower())
                                     if 'lil' in file.lower():
                                         file = study_ID_in_file[0] + 'LIL.jpg'
-                                        print('New LIL: ', file)
+                                        #print('New LIL: ', file)
                                     elif 'LL' in file and 'inv' in file.lower():
                                         file = 'LL_' + study_ID_in_file[0] + '_inv.jpg'
                                     elif 'LL' in file and 'nor' in file.lower():
@@ -1049,7 +1049,7 @@ def check_contents(drive, phenotype, studyID=''):
                                     elif 'p7.jpg' in file.lower():
                                         file = study_ID_in_file[0] + 'p7.jpg'
 
-                                    print('Appending', file)                        
+                                    #print('Appending', file)                        
                                     text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                     text.see(END)
                                     text.update()
@@ -1061,18 +1061,18 @@ def check_contents(drive, phenotype, studyID=''):
 
             # To Process StudyIDs
             try:
-                print(studyID)
+                #print(studyID)
                 toProcess_studyID_list = get_lipToProcess_studyIDs_SQL(phenotype, studyID) # get the ToProcess StudyIDs
             except:
                 toProcess_studyID_list = []
-                print('get_lipToProcess_studyIDs_SQL function did not work as excepted')
+                #print('get_lipToProcess_studyIDs_SQL function did not work as excepted')
 
             if toProcess_studyID_list != []:
                 for studyID_toProcess in toProcess_studyID_list:
                     should_have_toProcess_LIL = studyID_toProcess[0] + 'LIL.jpg'
                     should_have.append(should_have_toProcess_LIL)
                     for num in range(1, 8):
-                        print(studyID_toProcess[0] + 'p{0}.jpg'.format(num))
+                        #print(studyID_toProcess[0] + 'p{0}.jpg'.format(num))
                         should_have_toProcess_p = studyID_toProcess[0] + 'p{0}.jpg'.format(num)
                         should_have.append(should_have_toProcess_p)
 
@@ -1089,7 +1089,7 @@ def check_contents(drive, phenotype, studyID=''):
                 should_have.append(should_have_UL_NOR)
                 should_have_UL_PCO = 'UL_{}_pco.jpg'.format(studyID[0])
                 should_have.append(should_have_UL_PCO)
-        print(should_have)
+        #print(should_have)
         # P: drive files
         if drive == 'P:':
             for studyID in studyIDs_in_SQL:
@@ -1102,11 +1102,11 @@ def check_contents(drive, phenotype, studyID=''):
                 should_have.append(should_have_LL_PSD)
                 should_have_LL_PSD = 'UL_{}.psd'.format(studyID[0])
                 should_have.append(should_have_LL_PSD)
-        print(set(should_have))
-        print()
-        print(set(on_fileserver))
+        #print(set(should_have))
+        #print()
+        #print(set(on_fileserver))
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
-        print(missing)
+        #print(missing)
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
         if len(missing) >0:
@@ -1114,9 +1114,9 @@ def check_contents(drive, phenotype, studyID=''):
                 text.insert(INSERT,'{0} is missing\n'.format(studyID))
                 text.see(END)
                 text.update()
-                print(studyID, 'is missing')
+                #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing))) 
         else:
             text.insert(INSERT, '\nAll subjects have the correct files!')
             text.see(END)
@@ -1141,7 +1141,7 @@ def get_submit():
 
 def get_savelog():
     log_contents = text.get(1.0, 'end')
-    print(log_contents)
+    #print(log_contents)
     with asksaveasfile(title='Save Output', mode='a+', defaultextension='.csv', filetypes =(('csv', '.csv'),('txt', '.txt'))) as create_log:
         for line in log_contents:
             create_log.writelines(line)
@@ -1233,3 +1233,4 @@ text.place(x=250, rely=0.06)
 scroll.config(command=text.yview)
 
 root.mainloop()
+
