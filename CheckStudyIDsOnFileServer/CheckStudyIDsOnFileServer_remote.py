@@ -1129,31 +1129,47 @@ def check_contents(drive, phenotype, studyID=''):
                         should_have_toProcess_p = studyID_toProcess[0] + 'p{0}.jpg'.format(num)
                         should_have.append(should_have_toProcess_p)
 
+            # find subjects that can be excluded from report because unusable, not received, or lip pits
+            studyIDsToExclude = get_lipPhotosToExclude_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+
+            # create a list of exculded IDs
+            exclude_ID_list = []
+            for exclude_ID in studyIDsToExclude:
+                exclude_ID_list.append(exclude_ID[0])
+            # create a list of IDs from studyIDs_in_SQL
+            studyID_list = []
             for studyID in studyIDs_in_SQL:
-                should_have_LL_INV = 'LL_{}_inv.jpg'.format(studyID[0])
+                studyID_list.append(studyID[0])
+
+            # create a list that is the diff of excluded IDs and studyIDs_in_SQL
+            studyIDs_in_SQL = list(set(studyID_list).difference(set(exclude_ID_list)))
+            
+            for studyID in studyIDs_in_SQL:
+                #print(studyID)
+                should_have_LL_INV = 'LL_{}_inv.jpg'.format(studyID)
                 should_have.append(should_have_LL_INV)
-                should_have_LL_NOR = 'LL_{}_nor.jpg'.format(studyID[0])
+                should_have_LL_NOR = 'LL_{}_nor.jpg'.format(studyID)
                 should_have.append(should_have_LL_NOR)
-                should_have_LL_PCO = 'LL_{}_pco.jpg'.format(studyID[0])
+                should_have_LL_PCO = 'LL_{}_pco.jpg'.format(studyID)
                 should_have.append(should_have_LL_PCO)
-                should_have_UL_INV = 'UL_{}_inv.jpg'.format(studyID[0])
+                should_have_UL_INV = 'UL_{}_inv.jpg'.format(studyID)
                 should_have.append(should_have_UL_INV)
-                should_have_UL_NOR = 'UL_{}_nor.jpg'.format(studyID[0])
+                should_have_UL_NOR = 'UL_{}_nor.jpg'.format(studyID)
                 should_have.append(should_have_UL_NOR)
-                should_have_UL_PCO = 'UL_{}_pco.jpg'.format(studyID[0])
+                should_have_UL_PCO = 'UL_{}_pco.jpg'.format(studyID)
                 should_have.append(should_have_UL_PCO)
         #print(should_have)
         # P: drive files
         if drive == 'P:':
             for studyID in studyIDs_in_SQL:
                 for num in range(1, 8):
-                    should_have_toProcess_p = studyID[0] + 'p{0}.jpg'.format(num)
+                    should_have_toProcess_p = studyID + 'p{0}.jpg'.format(num)
                     should_have.append(should_have_toProcess_p)
-                should_have_LIL = '{}LIL.jpg'.format(studyID[0])
+                should_have_LIL = '{}LIL.jpg'.format(studyID)
                 should_have.append(should_have_LIL)
-                should_have_LL_PSD = 'LL_{}.psd'.format(studyID[0])
+                should_have_LL_PSD = 'LL_{}.psd'.format(studyID)
                 should_have.append(should_have_LL_PSD)
-                should_have_LL_PSD = 'UL_{}.psd'.format(studyID[0])
+                should_have_LL_PSD = 'UL_{}.psd'.format(studyID)
                 should_have.append(should_have_LL_PSD)
         #print(set(should_have))
         #print()

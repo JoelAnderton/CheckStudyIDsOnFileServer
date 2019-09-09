@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>0feb15ce-fc4c-405e-906c-ae4e0c82f6a0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CheckStudyIDsOnFileServer_use.py</StartupFile>
+    <StartupFile>CheckStudyIDsOnFileServer_remote.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
