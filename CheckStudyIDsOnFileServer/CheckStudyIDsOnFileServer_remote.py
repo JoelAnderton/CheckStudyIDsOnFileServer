@@ -9,7 +9,9 @@
 #          Check they are in the correct folder
 #          Check they contain all the right files
 # Updates:
-#
+#       - 9/9/2019
+#           - Excluded LipPhots because unusable, not received, or lip pits.
+#              
 #####################################################################################################################################
 from tkinter import *
 from tkinter import ttk
@@ -1128,7 +1130,7 @@ def check_contents(drive, phenotype, studyID=''):
                         #print(studyID_toProcess[0] + 'p{0}.jpg'.format(num))
                         should_have_toProcess_p = studyID_toProcess[0] + 'p{0}.jpg'.format(num)
                         should_have.append(should_have_toProcess_p)
-
+            
             # find subjects that can be excluded from report because unusable, not received, or lip pits
             studyIDsToExclude = get_lipPhotosToExclude_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
 
@@ -1222,13 +1224,16 @@ def get_about():
     Created date: 7/22/2019
 
     OFC2 Check files on file server
-    Version 1.0
+    Version 1.1
     
     Only works for the OFC2 Study
     Checks the following:
        1. Folders Check - File in correct folder.
        2. Spelling Check - Folder has an acceptable StudyID.
        3. Contents Check - Subject contains all necessary files.
+    
+    Updates:
+    9/9/2019 - Excluded LipPhots because unusable, not received, or lip pits. 
 
     ''')
 
@@ -1243,7 +1248,7 @@ drive = StringVar()
 phenotype = StringVar()
 check = StringVar()
 
-root.title('Phenotype File and Folder Checking v. 1.0')
+root.title('Phenotype File and Folder Checking v. 1.1')
 
 frame = Frame(root, width=200, height=310, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
 frame.place(x=30, y=160)
