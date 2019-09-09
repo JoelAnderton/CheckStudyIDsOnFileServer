@@ -92,6 +92,59 @@ def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
     #print()
     return studyIDs_in_SQl_toProcess
 
+def get_lipPhotosToExclude_studyIDs_SQL(phenotype, studyID=''):
+    """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
+    text.config(state='normal')
+    #print('Searching SQL for Lip Photo StudyIDs To Process')
+    studyID_list = []
+    studyID_list.append(studyID)
+    connection = sql_connection2()
+    cur = connection.cursor()
+
+    if studyID == '': # if not given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+         [StudyID]
+        ,[LipPhotosArchived]
+        ,[LipPhotosProcessed]
+
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW]
+        WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR
+        (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR
+        (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1)
+        ''')
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+         [StudyID]
+        ,[LipPhotosArchived]
+        ,[LipPhotosProcessed]
+
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW]
+          WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR
+        (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR
+        (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1) AND [StudyID] = ?
+        ''')
+        cur.execute(sqlcode, studyID_list)
+
+    studyIDs_in_SQl_toExclude = []
+    text.delete('5.0','end')
+    text.insert(INSERT, '\nExcluding thse StudyIDs from report:\n')
+    for row in cur.fetchall():
+        #print(row)
+        text.insert(INSERT, '\nStudyID: {0}'.format(row[0:][0]))
+        text.see(END)
+        text.update()
+        text.delete('6.0','end')
+        #print('StudyID: {0}'.format(row[0:][0]), end='\r')
+        studyIDs_in_SQl_toExclude.append(row)
+    text.delete('6.0','end')
+    text.insert('6.0', '\nStudyID: Done!       ')
+    #print('StudyID: Done!     ')
+    #print()
+    return studyIDs_in_SQl_toExclude
+
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
                              'LipPhotos':r'R:\OFC2\PhenotypeRating\LipPhotos',
