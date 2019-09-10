@@ -45,7 +45,7 @@ def sql_connection2():
     connection = pypyodbc.connect(connection_string)
     return connection
 
-def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
+def get_lip_to_process_studyIDs_SQL(phenotype, studyID=''):
     """Finds completed StudyIDs in SQL"""
     text.config(state='normal')
     #print('Searching SQL for Lip Photo StudyIDs To Process')
@@ -94,10 +94,8 @@ def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
     #print()
     return studyIDs_in_SQl_toProcess
 
-def get_lipPhotosToExclude_studyIDs_SQL(phenotype, studyID=''):
+def get_lip_photos_to_exclude(phenotype, studyID=''):
     """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
-    text.config(state='normal')
-    #print('Searching SQL for Lip Photo StudyIDs To Process')
     studyID_list = []
     studyID_list.append(studyID)
     connection = sql_connection2()
@@ -130,22 +128,11 @@ def get_lipPhotosToExclude_studyIDs_SQL(phenotype, studyID=''):
         ''')
         cur.execute(sqlcode, studyID_list)
 
-    studyIDs_in_SQl_toExclude = []
-    text.delete('5.0','end')
-    text.insert(INSERT, '\nExcluding thse StudyIDs from report:\n')
+    lip_photos_to_exclude = []
     for row in cur.fetchall():
-        #print(row)
-        text.insert(INSERT, '\nStudyID: {0}'.format(row[0:][0]))
-        text.see(END)
-        text.update()
-        text.delete('6.0','end')
-        #print('StudyID: {0}'.format(row[0:][0]), end='\r')
-        studyIDs_in_SQl_toExclude.append(row)
-    text.delete('6.0','end')
-    text.insert('6.0', '\nStudyID: Done!       ')
-    #print('StudyID: Done!     ')
-    #print()
-    return studyIDs_in_SQl_toExclude
+        lip_photos_to_exclude.append(row)
+   
+    return lip_photos_to_exclude
 
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
@@ -171,7 +158,6 @@ def get_file_paths(drive, phenotype):
                      }
     #print(phenotype_paths[drive][phenotype])
     return phenotype_paths[drive][phenotype]
-
 
 def get_studyIDs_SQL(phenotype, studyID=''):
     """Finds completed StudyIDs in SQL"""
@@ -244,7 +230,6 @@ def get_studyIDs_SQL(phenotype, studyID=''):
     #print()
     return studyIDs_in_SQl_list
 
-
 def get_studyIDs_Server(drive, phenotype, studyID = ''):
     """Finds StudyIDs used on file server"""
 
@@ -282,8 +267,6 @@ def get_studyIDs_Server(drive, phenotype, studyID = ''):
     #print('StudyID: Done!     ')
     #print()
     return studyID_list
-
-
 
 def check_folder(drive, phenotype, studyID = ''):
     """Check if file is in the correct folder"""
@@ -1117,7 +1100,7 @@ def check_contents(drive, phenotype, studyID=''):
             # To Process StudyIDs
             try:
                 #print(studyID)
-                toProcess_studyID_list = get_lipToProcess_studyIDs_SQL(phenotype, studyID) # get the ToProcess StudyIDs
+                toProcess_studyID_list = get_lip_to_process_studyIDs_SQL(phenotype, studyID) # get the ToProcess StudyIDs
             except:
                 toProcess_studyID_list = []
                 #print('get_lipToProcess_studyIDs_SQL function did not work as excepted')
@@ -1132,7 +1115,7 @@ def check_contents(drive, phenotype, studyID=''):
                         should_have.append(should_have_toProcess_p)
             
             # find subjects that can be excluded from report because unusable, not received, or lip pits
-            studyIDsToExclude = get_lipPhotosToExclude_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+            studyIDsToExclude = get_lip_photos_to_exclude(phenotype=phenotype, studyID=studyID)
 
             # create a list of exculded IDs
             exclude_ID_list = []
