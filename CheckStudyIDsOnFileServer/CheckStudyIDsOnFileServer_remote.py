@@ -134,6 +134,42 @@ def get_lip_photos_to_exclude(phenotype, studyID=''):
    
     return lip_photos_to_exclude
 
+def get_LHF_to_exclude(phenotype, studyID=''):
+    """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
+    studyID_list = []
+    studyID_list.append(studyID)
+    connection = sql_connection2()
+    cur = connection.cursor()
+
+    if studyID == '': # if not given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+          [StudyID]
+         ,[LHFPhoto]
+         ,[WoundHealingProcessed]
+   
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]
+        WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0
+        ''')
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+          [StudyID]
+         ,[LHFPhoto]
+         ,[WoundHealingProcessed]
+   
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]
+        WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0 AND [StudyID] = ?
+        ''')
+        cur.execute(sqlcode, studyID_list)
+
+    LHF_to_exclude = []
+    for row in cur.fetchall():
+        LHF_to_exclude.append(row)
+   
+    return LHF_to_exclude
+
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
                              'LipPhotos':r'R:\OFC2\PhenotypeRating\LipPhotos',
@@ -459,7 +495,7 @@ def check_contents(drive, phenotype, studyID=''):
     text.update()
 
     studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
-    
+    LHF_to_exclude = get_LHF_to_exclude(phenotype=phenotype, studyID=studyID)
     contents_dic = {'R:': 
                     {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]'],
 
@@ -576,7 +612,12 @@ def check_contents(drive, phenotype, studyID=''):
         for studyID in studyIDs_in_SQL:
             should_have.append(studyID[0])
 
+     
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
+        exclude_list = []
+        for exclude_ID in LHF_to_exclude:
+            exclude_list.append(exclude_ID[0])
+        missing = sorted(list(set(missing).difference(set(exclude_list))) )
 
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
