@@ -242,6 +242,43 @@ def get_LipUltraSound_to_exclude(phenotype, studyID=''):
    
     return LipUltraSound_to_exclude
 
+def get_IOP_to_exclude(phenotype, studyID=''):
+    """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
+    studyID_list = []
+    studyID_list.append(studyID)
+    connection = sql_connection2()
+    cur = connection.cursor()
+
+    if studyID == '': # if not given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+          [StudyID]     
+          ,[IntraoralPhotos]
+          ,[IntraOralProcessed]
+      
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW]
+        WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0
+        ''')
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+          [StudyID]     
+          ,[IntraoralPhotos]
+          ,[IntraOralProcessed]
+      
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW]
+        WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0 AND [StudyID] = ?
+        ''')
+        cur.execute(sqlcode, studyID_list)
+
+    IOP_to_exclude = []
+    for row in cur.fetchall():
+        IOP_to_exclude.append(row)
+   
+    return IOP_to_exclude
+
+
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
                              'LipPhotos':r'R:\OFC2\PhenotypeRating\LipPhotos',
@@ -735,6 +772,14 @@ def check_contents(drive, phenotype, studyID=''):
 
     # Handles IntraoralPhotos Contents Check  both R: and P: drives 
     elif  phenotype == 'IntraoralPhotos':
+
+         # find subjects that we can expect to exclude from the report because unusable files.
+        exclude_list = []
+        IOP_to_exclude = get_IOP_to_exclude(phenotype=phenotype, studyID=studyID)
+        for exclude_ID in IOP_to_exclude:
+            print(exclude_ID[0])
+            exclude_list.append(exclude_ID[0])
+
         if studyID == '':
             for root, dirs, files in os.walk(path):
                 for file in files:
@@ -760,12 +805,20 @@ def check_contents(drive, phenotype, studyID=''):
                                 text.update()
                                 text.delete('6.0','end')
                                 on_fileserver.append(file)
+    
+        # remove subjects we know will not have files because they are unusuable.
+        new_StudyIDs_in_SQL = []
+        for studyID in studyIDs_in_SQL:
+            new_StudyIDs_in_SQL.append(studyID[0])
+
+        studyIDs_in_SQL = sorted(list(set(new_StudyIDs_in_SQL).difference(set(exclude_list))))
 
         for studyID in studyIDs_in_SQL:
             for num in range(1, 8):
-                should_have_IOP_file = '{0}t{1}.JPG'.format(studyID[0], num)
+                should_have_IOP_file = '{0}t{1}.JPG'.format(studyID, num)
                 should_have.append(should_have_IOP_file)
-
+        
+        # find only the subject's that are missing"
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
 
         text.delete('5.0','end')  
