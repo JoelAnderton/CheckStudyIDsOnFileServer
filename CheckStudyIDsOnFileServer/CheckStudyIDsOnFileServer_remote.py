@@ -170,6 +170,78 @@ def get_LHF_to_exclude(phenotype, studyID=''):
    
     return LHF_to_exclude
 
+def get_PalateVideo_to_exclude(phenotype, studyID=''):
+    """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
+    studyID_list = []
+    studyID_list.append(studyID)
+    connection = sql_connection2()
+    cur = connection.cursor()
+
+    if studyID == '': # if not given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+          [StudyID]
+         ,[PalateVideo]
+         ,[PalateVideosProcessed]
+   
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW]
+        WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0
+        ''')
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+          [StudyID]
+         ,[PalateVideo]
+         ,[PalateVideosProcessed]
+   
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW]
+        WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0 AND [StudyID] = ?
+        ''')
+        cur.execute(sqlcode, studyID_list)
+
+    PalateVideo_to_exclude = []
+    for row in cur.fetchall():
+        PalateVideo_to_exclude.append(row)
+   
+    return PalateVideo_to_exclude
+
+def get_LipUltraSound_to_exclude(phenotype, studyID=''):
+    """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
+    studyID_list = []
+    studyID_list.append(studyID)
+    connection = sql_connection2()
+    cur = connection.cursor()
+
+    if studyID == '': # if not given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+            [StudyID]
+            ,[LipUltrasound]
+            ,[OOMProcessed]
+
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW]
+        WHERE [LipUltrasound] =1 AND [OOMProcessed]=0
+        ''')
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = ('''  
+        SELECT 
+            [StudyID]
+            ,[LipUltrasound]
+            ,[OOMProcessed]
+
+        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW]
+        WHERE [LipUltrasound] =1 AND [OOMProcessed]=0 AND [StudyID] = ?
+        ''')
+        cur.execute(sqlcode, studyID_list)
+
+    LipUltraSound_to_exclude = []
+    for row in cur.fetchall():
+        LipUltraSound_to_exclude.append(row)
+   
+    return LipUltraSound_to_exclude
+
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
                              'LipPhotos':r'R:\OFC2\PhenotypeRating\LipPhotos',
@@ -495,7 +567,7 @@ def check_contents(drive, phenotype, studyID=''):
     text.update()
 
     studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
-    LHF_to_exclude = get_LHF_to_exclude(phenotype=phenotype, studyID=studyID)
+    
     contents_dic = {'R:': 
                     {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]'],
 
@@ -580,7 +652,24 @@ def check_contents(drive, phenotype, studyID=''):
     text.insert(INSERT, '\nSearching File Server for files\n')
       
     # Handles 'LipUltrasound', 'LHFPhoto', 'PalateVideo' Contents Check  both R: and P: drives  
-    if phenotype in ['LipUltrasound', 'LHFPhoto', 'PalateVideo']:  
+    if phenotype in ['LipUltrasound', 'LHFPhoto', 'PalateVideo']: 
+
+        # find subjects that we can expect to exclude from the report because unusable files.
+        exclude_list = []
+        if phenotype == 'LipUltrasound':
+            LipUltraSound_to_exclude = get_LipUltraSound_to_exclude(phenotype=phenotype, studyID=studyID)
+            for exclude_ID in LipUltraSound_to_exclude:
+                exclude_list.append(exclude_ID[0])
+        elif phenotype in 'LHFPhoto':
+            LHF_to_exclude = get_LHF_to_exclude(phenotype=phenotype, studyID=studyID)
+            for exclude_ID in LHF_to_exclude:
+                exclude_list.append(exclude_ID[0])
+        elif phenotype == 'PalateVideo':
+            PalateVideo_to_exclude = get_PalateVideo_to_exclude(phenotype=phenotype, studyID=studyID)
+            for exclude_ID in PalateVideo_to_exclude:
+                exclude_list.append(exclude_ID[0])
+        
+        
         if studyID == '':
             for root, dirs, files in os.walk(path):
                 for file in files:
@@ -612,11 +701,10 @@ def check_contents(drive, phenotype, studyID=''):
         for studyID in studyIDs_in_SQL:
             should_have.append(studyID[0])
 
-     
+        # find only the subject's that are missing"
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
-        exclude_list = []
-        for exclude_ID in LHF_to_exclude:
-            exclude_list.append(exclude_ID[0])
+        
+        # remove subjects we know will not have files because they are unusuable.
         missing = sorted(list(set(missing).difference(set(exclude_list))) )
 
         text.delete('5.0','end')  
