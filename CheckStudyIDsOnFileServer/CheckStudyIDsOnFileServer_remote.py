@@ -9,7 +9,9 @@
 #          Check they are in the correct folder
 #          Check they contain all the right files
 # Updates:
-#
+#       - 9/9/2019
+#           - Excluded LipPhots because unusable, not received, or lip pits.
+#              
 #####################################################################################################################################
 from tkinter import *
 from tkinter import ttk
@@ -34,6 +36,7 @@ def sql_connection():
     connection = pypyodbc.connect(connection_string)
     return connection
 
+
 def sql_connection2():
     """Creates a SQL connection"""
     connection_string = ('Driver={SQL Server};' 
@@ -43,7 +46,8 @@ def sql_connection2():
     connection = pypyodbc.connect(connection_string)
     return connection
 
-def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
+
+def get_lip_to_process_studyIDs_SQL(phenotype, studyID=''):
     """Finds completed StudyIDs in SQL"""
     text.config(state='normal')
     #print('Searching SQL for Lip Photo StudyIDs To Process')
@@ -91,6 +95,49 @@ def get_lipToProcess_studyIDs_SQL(phenotype, studyID=''):
     #print('StudyID: Done!     ')
     #print()
     return studyIDs_in_SQl_toProcess
+
+
+def get_IDs_to_exclude(phenotype, studyID=''):
+    """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
+    studyID_list = []
+    studyID_list.append(studyID)
+    connection = sql_connection2()
+    cur = connection.cursor()
+
+    sql_code_dic = {'LipUltrasound':'SELECT [StudyID], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1)', 
+                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE [LipPhotos] = 1 and [LipPhotosProcessed] = 0',
+                    'LHFPhoto': 'SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0',
+                    'IntraoralPhotos':'SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0',
+                    'PalateVideo':'SELECT [StudyID], [PalateVideo], [PalateVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0',
+                    'Photos3D':'SELECT [StudyID], [Photos3D], [Photos3DProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  WHERE [Photos3D] =1 AND [Photos3DProcessed] =0',
+                    'DentalImpression':'SELECT [StudyID], [DentalImpression], [DentalCastProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0',
+                    'HandScan':'SELECT  [StudyID], [HandScan], [HandScanProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] WHERE [HandScan] =1 AND [HandScanProcessed] = 0',
+                    'SpeechVideos':'SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW]  WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0'
+        }
+
+    sql_code_dic_with_StudyID = {'LipUltrasound':'SELECT [StudyID], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1) AND [StudyID] =?',
+                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE [LipPhotos] = 1 and [LipPhotosProcessed] = 0 AND [StudyID] =?',
+                    'LHFPhoto': 'SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0 AND [StudyID] =?',
+                    'IntraoralPhotos':'SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0 AND [StudyID] =?',
+                    'PalateVideo':'SELECT [StudyID], [PalateVideo], [PalateVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0 AND [StudyID] =?',
+                    'Photos3D':'SELECT [StudyID], [Photos3D], [Photos3DProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  WHERE [Photos3D] =1 AND [Photos3DProcessed] =0 AND [StudyID] =?',
+                    'DentalImpression':'SELECT [StudyID], [DentalImpression], [DentalCastProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0 AND [StudyID] =?',
+                    'HandScan':'SELECT  [StudyID], [HandScan], [HandScanProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] WHERE [HandScan] =1 AND [HandScanProcessed] = 0 AND [StudyID] =?',
+                    'SpeechVideos':'SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW]  WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0 AND [StudyID] =?'
+        }
+
+    if studyID == '': # if not given an individual StudyID
+        sqlcode = (sql_code_dic[phenotype])
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = (sql_code_dic_with_StudyID[phenotype])
+        cur.execute(sqlcode, studyID_list)
+
+    IDs_to_exclude = []
+    for row in cur.fetchall():
+        IDs_to_exclude.append(row[0])
+    return IDs_to_exclude
+
 
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
@@ -175,6 +222,7 @@ def get_studyIDs_SQL(phenotype, studyID=''):
     studyIDs_in_SQl_list = []
     text.delete('5.0','end')
     text.insert(INSERT, '\nGathering StudyIDs from SQL:\n')
+    
     for row in cur.fetchall():
         #print(row)
         text.insert(INSERT, '\nStudyID: {0}'.format(row[0:][0]))
@@ -182,7 +230,10 @@ def get_studyIDs_SQL(phenotype, studyID=''):
         text.update()
         text.delete('6.0','end')
         #print('StudyID: {0}'.format(row[0:][0]), end='\r')
-        studyIDs_in_SQl_list.append(row)
+        if phenotype not in ('Photos3D', 'SpeechVideos') :  # if phenotype = Photos3D we need the whole row of information because of the camera type...used later.
+            studyIDs_in_SQl_list.append(row[0])
+        else:
+            studyIDs_in_SQl_list.append(row)
     text.delete('6.0','end')
     text.insert('6.0', '\nStudyID: Done!       ')
     #print('StudyID: Done!     ')
@@ -192,11 +243,8 @@ def get_studyIDs_SQL(phenotype, studyID=''):
 
 def get_studyIDs_Server(drive, phenotype, studyID = ''):
     """Finds StudyIDs used on file server"""
-
     #print('Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
- 
     path = get_file_paths(drive, phenotype)
-
     text.insert(INSERT, 'Searching file server in the {0} phenotype folder for StudyIDs\n'.format(phenotype))
     studyID_list = []
     if studyID == '':
@@ -227,7 +275,6 @@ def get_studyIDs_Server(drive, phenotype, studyID = ''):
     #print('StudyID: Done!     ')
     #print()
     return studyID_list
-
 
 
 def check_folder(drive, phenotype, studyID = ''):
@@ -333,6 +380,7 @@ def check_folder(drive, phenotype, studyID = ''):
         #print('All files are in their correct folders!')
     text.configure(state='disabled')
 
+
 def check_spelling(drive, phenotype, studyID = ''):
     """Check if folder has the correct spelling for a StudyID"""
     path = get_file_paths(drive, phenotype)
@@ -410,6 +458,7 @@ def check_spelling(drive, phenotype, studyID = ''):
 
     text.configure(state='disabled')
 
+
 def check_contents(drive, phenotype, studyID=''):
     '''Check that the subject(s) have all the correct files on the file server if SQL says they completed them'''
     path = get_file_paths(drive, phenotype)
@@ -421,6 +470,11 @@ def check_contents(drive, phenotype, studyID=''):
     text.update()
 
     studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
+    # find subjects that we can expect to exclude from the report because unusable files.
+    exclude_list = get_IDs_to_exclude(phenotype=phenotype, studyID=studyID)
+    if phenotype not in ('Photos3D', 'SpeechVideos'):
+        # remove subjects we know will not have files because they are unusuable.   Photos3D has it's own process to remove excluded subjects
+        studyIDs_in_SQL = sorted(list(set(studyIDs_in_SQL).difference(set(exclude_list))))
     
     contents_dic = {'R:': 
                     {'LipUltrasound':['[A-Za-z]{2}[0-9]{5}.*\.[Mm][Pp][4]'],
@@ -506,7 +560,7 @@ def check_contents(drive, phenotype, studyID=''):
     text.insert(INSERT, '\nSearching File Server for files\n')
       
     # Handles 'LipUltrasound', 'LHFPhoto', 'PalateVideo' Contents Check  both R: and P: drives  
-    if phenotype in ['LipUltrasound', 'LHFPhoto', 'PalateVideo']:  
+    if phenotype in ['LipUltrasound', 'LHFPhoto', 'PalateVideo']: 
         if studyID == '':
             for root, dirs, files in os.walk(path):
                 for file in files:
@@ -536,10 +590,11 @@ def check_contents(drive, phenotype, studyID=''):
                                 on_fileserver.append(study_ID_in_file[0])
 
         for studyID in studyIDs_in_SQL:
-            should_have.append(studyID[0])
+            should_have.append(studyID)
 
+        # find only the subject's that are missing"
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
-
+        
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
         if len(missing) >0:
@@ -593,12 +648,13 @@ def check_contents(drive, phenotype, studyID=''):
                                 text.update()
                                 text.delete('6.0','end')
                                 on_fileserver.append(file)
-
+    
         for studyID in studyIDs_in_SQL:
             for num in range(1, 8):
-                should_have_IOP_file = '{0}t{1}.JPG'.format(studyID[0], num)
+                should_have_IOP_file = '{0}t{1}.JPG'.format(studyID, num)
                 should_have.append(should_have_IOP_file)
-
+        
+        # find only the subject's that are missing"
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
 
         text.delete('5.0','end')  
@@ -641,14 +697,14 @@ def check_contents(drive, phenotype, studyID=''):
                                 on_fileserver.append(file)
 
         for studyID in studyIDs_in_SQL:
-            should_have_MAND = '{}MAND.stl'.format(studyID[0])
+            should_have_MAND = '{}MAND.stl'.format(studyID)
             should_have.append(should_have_MAND)
-            should_have_MAX = '{}MAX.stl'.format(studyID[0])
+            should_have_MAX = '{}MAX.stl'.format(studyID)
             should_have.append(should_have_MAX)
             if drive == 'P:':
-                should_have_MANDraw = '{}MANDraw.stl'.format(studyID[0])
+                should_have_MANDraw = '{}MANDraw.stl'.format(studyID)
                 should_have.append(should_have_MANDraw)
-                should_have_MAXraw = '{}MAXraw.stl'.format(studyID[0])
+                should_have_MAXraw = '{}MAXraw.stl'.format(studyID)
                 should_have.append(should_have_MAXraw)
 
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
@@ -711,12 +767,12 @@ def check_contents(drive, phenotype, studyID=''):
                                 on_fileserver.append(file)
 
         for studyID in studyIDs_in_SQL:
-            should_have_HSNtif = '{}HSN.tif'.format(studyID[0])
+            should_have_HSNtif = '{}HSN.tif'.format(studyID)
             should_have.append(should_have_HSNtif)
             if drive=='R:':
-                should_have_HSNleft = '{}HSN_Left.TPS'.format(studyID[0]) 
+                should_have_HSNleft = '{}HSN_Left.TPS'.format(studyID) 
                 should_have.append(should_have_HSNleft)
-                should_have_HSNright = '{}HSN_Right.TPS'.format(studyID[0])
+                should_have_HSNright = '{}HSN_Right.TPS'.format(studyID)
                 should_have.append(should_have_HSNright)
 
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
@@ -780,6 +836,9 @@ def check_contents(drive, phenotype, studyID=''):
 
 
         for studyID in studyIDs_in_SQL:
+            #print(studyID)
+            if studyID[0] in exclude_list:
+                continue
             if studyID[10] == 1:
                 should_have_ID = '{}_ID.mov'.format(studyID[0])
                 should_have.append(should_have_ID)
@@ -848,7 +907,6 @@ def check_contents(drive, phenotype, studyID=''):
                                 file = study_ID_in_file[0] + '2.bmp'
                             elif '3.bmp' in file.lower():
                                 file = study_ID_in_file[0] + '3.bmp'
-
                             #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
@@ -895,7 +953,6 @@ def check_contents(drive, phenotype, studyID=''):
                                     file = study_ID_in_file[0] + '2.bmp'
                                 elif '3.bmp' in file.lower():
                                     file = study_ID_in_file[0] + '3.bmp'
-
                                 #print('Appending', file)                        
                                 text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                 text.see(END)
@@ -904,50 +961,54 @@ def check_contents(drive, phenotype, studyID=''):
                                 on_fileserver.append(file)
 
         for studyID in studyIDs_in_SQL:
-            should_have_STANDARD_TSB = '{}_Clean_Standard.tsb'.format(studyID[0])
-            should_have.append(should_have_STANDARD_TSB)
-            should_have_STANDARD_PDF = '{}_Clean_Standard.pdf'.format(studyID[0])
-            should_have.append(should_have_STANDARD_PDF)
-            should_have_STANDARD_TXT = '{}_Clean_Standard.txt'.format(studyID[0])
-            should_have.append(should_have_STANDARD_TXT)
+            #print(studyID)
+            if studyID[0] in exclude_list:
+                continue
+            else:
+                should_have_STANDARD_TSB = '{}_Clean_Standard.tsb'.format(studyID[0])
+                should_have.append(should_have_STANDARD_TSB)
+                should_have_STANDARD_PDF = '{}_Clean_Standard.pdf'.format(studyID[0])
+                should_have.append(should_have_STANDARD_PDF)
+                should_have_STANDARD_TXT = '{}_Clean_Standard.txt'.format(studyID[0])
+                should_have.append(should_have_STANDARD_TXT)
 
-            if studyID[13] == '3dMD' and drive == 'P:':
-                should_have_TSB = '{}.tsb'.format(studyID[0])
-                should_have.append(should_have_TSB)
+                if studyID[13] == '3dMD' and drive == 'P:':
+                    should_have_TSB = '{}.tsb'.format(studyID[0])
+                    should_have.append(should_have_TSB)
 
-            elif studyID[13] == '3dMD' and drive == 'R:':
-                should_have_TSB = '{}.tsb'.format(studyID[0])
-                should_have.append(should_have_TSB)
-                should_have_Clean_TSB = '{}_Clean.tsb'.format(studyID[0])
-                should_have.append(should_have_Clean_TSB)
-                should_have_Clean_OBJ = '{}_Clean.obj'.format(studyID[0])
-                should_have.append(should_have_Clean_OBJ)
-                should_have_Clean_GIF = '{}_Clean.gif'.format(studyID[0])
-                should_have.append(should_have_Clean_GIF)
-                should_have_Clean_MTL = '{}_Clean.mtl'.format(studyID[0])
-                should_have.append(should_have_Clean_MTL)
-                should_have_Clean_BMP = '{}_Clean.bmp'.format(studyID[0])
-                should_have.append(should_have_Clean_BMP)
-                should_have_Clean_Belgium = '{}_Clean_Belgium.obj'.format(studyID[0])
-                should_have.append(should_have_Clean_Belgium)
+                elif studyID[13] == '3dMD' and drive == 'R:':
+                    should_have_TSB = '{}.tsb'.format(studyID[0])
+                    should_have.append(should_have_TSB)
+                    should_have_Clean_TSB = '{}_Clean.tsb'.format(studyID[0])
+                    should_have.append(should_have_Clean_TSB)
+                    should_have_Clean_OBJ = '{}_Clean.obj'.format(studyID[0])
+                    should_have.append(should_have_Clean_OBJ)
+                    should_have_Clean_GIF = '{}_Clean.gif'.format(studyID[0])
+                    should_have.append(should_have_Clean_GIF)
+                    should_have_Clean_MTL = '{}_Clean.mtl'.format(studyID[0])
+                    should_have.append(should_have_Clean_MTL)
+                    should_have_Clean_BMP = '{}_Clean.bmp'.format(studyID[0])
+                    should_have.append(should_have_Clean_BMP)
+                    should_have_Clean_Belgium = '{}_Clean_Belgium.obj'.format(studyID[0])
+                    should_have.append(should_have_Clean_Belgium)
 
-            elif studyID[13] == 'Vectra' and drive == 'P:':
-                should_have_TOM = '{}.tom'.format(studyID[0])
-                should_have.append(should_have_TOM)
+                elif studyID[13] == 'Vectra' and drive == 'P:':
+                    should_have_TOM = '{}.tom'.format(studyID[0])
+                    should_have.append(should_have_TOM)
 
-            elif studyID[13] == 'Vectra' and drive == 'R:':
-                should_have_OBJ = '{}.obj'.format(studyID[0])
-                should_have.append(should_have_OBJ)
-                should_have_MTL = '{}.mtl'.format(studyID[0])
-                should_have.append(should_have_MTL)
-                for num in range(1,4):
-                    should_have_BMP = '{0}{1}.bmp'.format(studyID[0], str(num))
-                    should_have.append(should_have_BMP)
-                should_have_Clean_OBJ = '{}_Clean.obj'.format(studyID[0])
-                should_have.append(should_have_Clean_OBJ)
-                should_have_Clean_MTL = '{}_Clean.mtl'.format(studyID[0])
-                should_have.append(should_have_Clean_MTL)
-
+                elif studyID[13] == 'Vectra' and drive == 'R:':
+                    should_have_OBJ = '{}.obj'.format(studyID[0])
+                    should_have.append(should_have_OBJ)
+                    should_have_MTL = '{}.mtl'.format(studyID[0])
+                    should_have.append(should_have_MTL)
+                    for num in range(1,4):
+                        should_have_BMP = '{0}{1}.bmp'.format(studyID[0], str(num))
+                        should_have.append(should_have_BMP)
+                    should_have_Clean_OBJ = '{}_Clean.obj'.format(studyID[0])
+                    should_have.append(should_have_Clean_OBJ)
+                    should_have_Clean_MTL = '{}_Clean.mtl'.format(studyID[0])
+                    should_have.append(should_have_Clean_MTL)
+ 
         missing = sorted(list(set(should_have).difference(set(on_fileserver))))
 
         text.delete('5.0','end')  
@@ -1002,7 +1063,6 @@ def check_contents(drive, phenotype, studyID=''):
                                 file = study_ID_in_file[0] + 'p6.jpg'
                             elif 'p7.jpg' in file.lower():
                                 file = study_ID_in_file[0] + 'p7.jpg'
-
                             #print('Appending', file)                        
                             text.insert(INSERT, '\nFile: {0}\n'.format(file))
                             text.see(END)
@@ -1048,7 +1108,6 @@ def check_contents(drive, phenotype, studyID=''):
                                         file = study_ID_in_file[0] + 'p6.jpg'
                                     elif 'p7.jpg' in file.lower():
                                         file = study_ID_in_file[0] + 'p7.jpg'
-
                                     #print('Appending', file)                        
                                     text.insert(INSERT, '\nFile: {0}\n'.format(file))
                                     text.see(END)
@@ -1058,11 +1117,10 @@ def check_contents(drive, phenotype, studyID=''):
 
         # R: drive files
         if drive == 'R:':
-
             # To Process StudyIDs
             try:
                 #print(studyID)
-                toProcess_studyID_list = get_lipToProcess_studyIDs_SQL(phenotype, studyID) # get the ToProcess StudyIDs
+                toProcess_studyID_list = get_lip_to_process_studyIDs_SQL(phenotype, studyID) # get the ToProcess StudyIDs
             except:
                 toProcess_studyID_list = []
                 #print('get_lipToProcess_studyIDs_SQL function did not work as excepted')
@@ -1075,32 +1133,34 @@ def check_contents(drive, phenotype, studyID=''):
                         #print(studyID_toProcess[0] + 'p{0}.jpg'.format(num))
                         should_have_toProcess_p = studyID_toProcess[0] + 'p{0}.jpg'.format(num)
                         should_have.append(should_have_toProcess_p)
-
+            
+            
             for studyID in studyIDs_in_SQL:
-                should_have_LL_INV = 'LL_{}_inv.jpg'.format(studyID[0])
+                #print(studyID)
+                should_have_LL_INV = 'LL_{}_inv.jpg'.format(studyID)
                 should_have.append(should_have_LL_INV)
-                should_have_LL_NOR = 'LL_{}_nor.jpg'.format(studyID[0])
+                should_have_LL_NOR = 'LL_{}_nor.jpg'.format(studyID)
                 should_have.append(should_have_LL_NOR)
-                should_have_LL_PCO = 'LL_{}_pco.jpg'.format(studyID[0])
+                should_have_LL_PCO = 'LL_{}_pco.jpg'.format(studyID)
                 should_have.append(should_have_LL_PCO)
-                should_have_UL_INV = 'UL_{}_inv.jpg'.format(studyID[0])
+                should_have_UL_INV = 'UL_{}_inv.jpg'.format(studyID)
                 should_have.append(should_have_UL_INV)
-                should_have_UL_NOR = 'UL_{}_nor.jpg'.format(studyID[0])
+                should_have_UL_NOR = 'UL_{}_nor.jpg'.format(studyID)
                 should_have.append(should_have_UL_NOR)
-                should_have_UL_PCO = 'UL_{}_pco.jpg'.format(studyID[0])
+                should_have_UL_PCO = 'UL_{}_pco.jpg'.format(studyID)
                 should_have.append(should_have_UL_PCO)
         #print(should_have)
         # P: drive files
         if drive == 'P:':
             for studyID in studyIDs_in_SQL:
                 for num in range(1, 8):
-                    should_have_toProcess_p = studyID[0] + 'p{0}.jpg'.format(num)
+                    should_have_toProcess_p = studyID + 'p{0}.jpg'.format(num)
                     should_have.append(should_have_toProcess_p)
-                should_have_LIL = '{}LIL.jpg'.format(studyID[0])
+                should_have_LIL = '{}LIL.jpg'.format(studyID)
                 should_have.append(should_have_LIL)
-                should_have_LL_PSD = 'LL_{}.psd'.format(studyID[0])
+                should_have_LL_PSD = 'LL_{}.psd'.format(studyID)
                 should_have.append(should_have_LL_PSD)
-                should_have_LL_PSD = 'UL_{}.psd'.format(studyID[0])
+                should_have_LL_PSD = 'UL_{}.psd'.format(studyID)
                 should_have.append(should_have_LL_PSD)
         #print(set(should_have))
         #print()
@@ -1126,7 +1186,6 @@ def check_contents(drive, phenotype, studyID=''):
 
 
 def get_submit():
-
     if phenotype_combo.get() == '':
         messagebox.showwarning('Phenotype', 'Must choose a "Phenotype" to run')
 
@@ -1138,6 +1197,7 @@ def get_submit():
         check_contents(drive_combo.get(), phenotype_combo.get(), studyID_entry.get())
     else:
         messagebox.showwarning('Check', 'Must choose a "Check" to run')
+
 
 def get_savelog():
     log_contents = text.get(1.0, 'end')
@@ -1153,13 +1213,16 @@ def get_about():
     Created date: 7/22/2019
 
     OFC2 Check files on file server
-    Version 1.0
+    Version 1.1
     
     Only works for the OFC2 Study
     Checks the following:
        1. Folders Check - File in correct folder.
        2. Spelling Check - Folder has an acceptable StudyID.
        3. Contents Check - Subject contains all necessary files.
+    
+    Updates:
+    9/9/2019 - Excluded subjects because unusable, not received, or lip pits. 
 
     ''')
 
@@ -1174,7 +1237,7 @@ drive = StringVar()
 phenotype = StringVar()
 check = StringVar()
 
-root.title('Phenotype File and Folder Checking v. 1.0')
+root.title('Phenotype File and Folder Checking v. 1.1')
 
 frame = Frame(root, width=200, height=310, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
 frame.place(x=30, y=160)
