@@ -9,8 +9,7 @@
 #          Check they are in the correct folder
 #          Check they contain all the right files
 # Updates:
-#       - 9/9/2019
-#           - Excluded LipPhots because unusable, not received, or lip pits.
+#       - 9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check. 
 #              
 #####################################################################################################################################
 from tkinter import *
@@ -1232,7 +1231,8 @@ def get_about():
        3. Contents Check - Subject contains all necessary files.
     
     Updates:
-    9/9/2019 - Excluded subjects because unusable, not received, or lip pits. 
+    9/9/2019 - Excluded subjects because unusable, not received, or lip pits 
+               from Contents Check. 
 
     ''')
 
