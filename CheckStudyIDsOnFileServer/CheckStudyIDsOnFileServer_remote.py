@@ -104,8 +104,8 @@ def get_IDs_to_exclude(phenotype, studyID=''):
     connection = sql_connection2()
     cur = connection.cursor()
 
-    sql_code_dic = {'LipUltrasound':'SELECT [StudyID], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1)', 
-                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE [LipPhotos] = 1 and [LipPhotosProcessed] = 0',
+    sql_code_dic = {'LipUltrasound':'SELECT [StudyID], [LipUltrasound], [OOMProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0', 
+                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1)',
                     'LHFPhoto': 'SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0',
                     'IntraoralPhotos':'SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0',
                     'PalateVideo':'SELECT [StudyID], [PalateVideo], [PalateVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0',
@@ -115,8 +115,8 @@ def get_IDs_to_exclude(phenotype, studyID=''):
                     'SpeechVideos':'SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW]  WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0'
         }
 
-    sql_code_dic_with_StudyID = {'LipUltrasound':'SELECT [StudyID], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1) AND [StudyID] =?',
-                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE [LipPhotos] = 1 and [LipPhotosProcessed] = 0 AND [StudyID] =?',
+    sql_code_dic_with_StudyID = {'LipUltrasound':'SELECT [StudyID], [LipUltrasound], [OOMProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0 AND [StudyID] =?',
+                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1) AND [StudyID] =?',
                     'LHFPhoto': 'SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0 AND [StudyID] =?',
                     'IntraoralPhotos':'SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0 AND [StudyID] =?',
                     'PalateVideo':'SELECT [StudyID], [PalateVideo], [PalateVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0 AND [StudyID] =?',
