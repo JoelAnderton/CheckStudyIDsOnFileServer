@@ -1218,21 +1218,20 @@ def get_savelog():
 
 def get_about():
     messagebox.showinfo('About', '''
-    Created by: Joel Anderton
-    Created date: 7/22/2019
+Created by: Joel Anderton
+Created date: 7/22/2019
 
-    OFC2 Check files on file server
-    Version 1.1
-    
-    Only works for the OFC2 Study
-    Checks the following:
-       1. Folders Check - File in correct folder.
-       2. Spelling Check - Folder has an acceptable StudyID.
-       3. Contents Check - Subject contains all necessary files.
-    
-    Updates:
-    9/9/2019 - Excluded subjects because unusable, not received, or lip pits 
-               from Contents Check. 
+OFC2 Check files on file server
+Version 1.1
+
+Only works for the OFC2 Study
+Checks the following:
+   1. Folders Check - File in correct folder.
+   2. Spelling Check - Folder has an acceptable StudyID.
+   3. Contents Check - Subject contains all necessary files.
+
+Updates:
+9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check. 
 
     ''')
 
