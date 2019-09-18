@@ -667,6 +667,11 @@ def check_contents(drive, phenotype, studyID=''):
                 #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
             #print('Total number of files missing: {}'.format(len(missing))) 
+        else:
+            text.insert(INSERT, '\nAll subjects have the correct files!')
+            text.see(END)
+            text.update()
+            #print('All subjects have the correct files!')
 
     # Handles DentalImpression Contents Check  both R: and P: drives 
     elif phenotype == 'DentalImpression':
@@ -718,7 +723,12 @@ def check_contents(drive, phenotype, studyID=''):
                 text.update()
                 #print(studyID, 'is missing')
             text.insert(INSERT,'Total number of files missing: {}'.format(len(missing)))
-            #print('Total number of files missing: {}'.format(len(missing))) 
+            #print('Total number of files missing: {}'.format(len(missing)))
+        else:
+            text.insert(INSERT, '\nAll subjects have the correct files!')
+            text.see(END)
+            text.update()
+            #print('All subjects have the correct files!') 
 
     # Handles HandScan Contents Check  both R: and P: drives 
     elif phenotype == 'HandScan':
