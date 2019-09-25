@@ -10,6 +10,7 @@
 #          Check they contain all the right files
 # Updates:
 #       - 9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check. 
+#       - 9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
 #              
 #####################################################################################################################################
 from tkinter import *
@@ -1194,6 +1195,31 @@ def check_contents(drive, phenotype, studyID=''):
     text.configure(state='disabled')
 
 
+def check_unusables(phenotype, studyID=''):
+    unusable_list = get_IDs_to_exclude(phenotype, studyID)
+
+    text.config(state='normal')
+    text.delete('1.0', 'end')
+    text.insert(INSERT, '--------------------------------------------------------------------------\nSubjects with unusable phenotype data for: {0}\n--------------------------------------------------------------------------\n'.format(phenotype))
+    text.insert(INSERT, 'Subject List:\n')
+    text.see(END)
+    text.update()
+
+    
+    if len(unusable_list) > 0:
+        for studyID in unusable_list:
+            text.insert(INSERT,'{0}\n'.format(studyID))
+            text.see(END)
+            text.update()
+        text.insert(INSERT,'Total number of subjects with unusable {0}: {1}'.format(phenotype, len(unusable_list)))
+    else:
+        text.insert(INSERT, '\nThere are no subjects marked as having unusable phenotypes!')
+        text.see(END)
+        text.update()
+
+
+
+
 def get_submit():
     if phenotype_combo.get() == '':
         messagebox.showwarning('Phenotype', 'Must choose a "Phenotype" to run')
@@ -1204,6 +1230,8 @@ def get_submit():
         check_spelling(drive_combo.get(), phenotype_combo.get(), studyID_entry.get())    
     elif check_combo.get()  == 'Contents Check':
         check_contents(drive_combo.get(), phenotype_combo.get(), studyID_entry.get())
+    elif check_combo.get()  == 'Unusable Check':
+        check_unusables(phenotype_combo.get(), studyID_entry.get())
     else:
         messagebox.showwarning('Check', 'Must choose a "Check" to run')
 
@@ -1222,7 +1250,7 @@ Created by: Joel Anderton
 Created date: 7/22/2019
 
 OFC2 Check files on file server
-Version 1.1
+Version 1.2
 
 Only works for the OFC2 Study
 Checks the following:
@@ -1231,7 +1259,8 @@ Checks the following:
    3. Contents Check - Subject contains all necessary files.
 
 Updates:
-9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check. 
+9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check.
+9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
 
     ''')
 
@@ -1246,7 +1275,7 @@ drive = StringVar()
 phenotype = StringVar()
 check = StringVar()
 
-root.title('Phenotype File and Folder Checking v. 1.1')
+root.title('Phenotype File and Folder Checking v. 1.2')
 
 frame = Frame(root, width=200, height=310, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
 frame.place(x=30, y=160)
@@ -1268,7 +1297,7 @@ phenotype_combo.place(x=110, y=220)
 # Check Combobox
 check_label = ttk.Label(root, text='Check:')
 check_label.place(x=40, y=260)
-check_combo = ttk.Combobox(root, textvariable=check, values=('Folders Check', 'Spelling Check', 'Contents Check',), width=15)
+check_combo = ttk.Combobox(root, textvariable=check, values=('Folders Check', 'Spelling Check', 'Contents Check', 'Unusable Check'), width=15)
 check_combo.place(x=110, y=260)
 
 #StudyID Entry
