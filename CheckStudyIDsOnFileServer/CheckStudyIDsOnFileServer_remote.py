@@ -2,7 +2,7 @@
 # Check StudyIDs on the File Server
 # Created by: Joel Anderton
 # Created date: 6/11/2019
-# Updated date: 6/11/2019
+# Updated date: 11/25/2019
 #
 # Purpose: Check that the OFC2 StudyIDs that name the files on the file server match the IDs in SQL
 #          Check they did what they were suppose to do
@@ -11,7 +11,8 @@
 # Updates:
 #       - 9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check. 
 #       - 9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
-#              
+#       - 11/25/2019 - Fixed issue with "Spelling" check       
+#
 #####################################################################################################################################
 from tkinter import *
 from tkinter import ttk
@@ -405,7 +406,8 @@ def check_spelling(drive, phenotype, studyID = ''):
     studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
     only_StudyIDs = []
     for row in studyIDs_in_SQL:   # get only the StudyIDs and add them to the only_StudyIDs list
-        only_StudyIDs.append(row[0:][0])
+        #print(row[0:])
+        only_StudyIDs.append(row[0:])
     
     #print(only_StudyIDs)
 
@@ -1250,7 +1252,7 @@ Created by: Joel Anderton
 Created date: 7/22/2019
 
 OFC2 Check files on file server
-Version 1.2
+Version 1.3
 
 Only works for the OFC2 Study
 Checks the following:
@@ -1261,6 +1263,7 @@ Checks the following:
 Updates:
 9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check.
 9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
+11/25/2019 - Fixed issue with "Spelling" check
 
     ''')
 
@@ -1275,7 +1278,7 @@ drive = StringVar()
 phenotype = StringVar()
 check = StringVar()
 
-root.title('Phenotype File and Folder Checking v. 1.2')
+root.title('Phenotype File and Folder Checking v. 1.3')
 
 frame = Frame(root, width=200, height=310, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
 frame.place(x=30, y=160)
