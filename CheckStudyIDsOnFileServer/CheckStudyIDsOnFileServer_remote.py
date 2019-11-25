@@ -406,8 +406,11 @@ def check_spelling(drive, phenotype, studyID = ''):
     studyIDs_in_SQL = get_studyIDs_SQL(phenotype=phenotype, studyID=studyID)
     only_StudyIDs = []
     for row in studyIDs_in_SQL:   # get only the StudyIDs and add them to the only_StudyIDs list
-        #print(row[0:])
-        only_StudyIDs.append(row[0:])
+        if phenotype in ('Photos3D', 'SpeechVideos'):
+            only_StudyIDs.append(row[0:][0])
+        else:
+            #print(row[0:])
+            only_StudyIDs.append(row[0:])
     
     #print(only_StudyIDs)
 
