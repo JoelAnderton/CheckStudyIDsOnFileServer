@@ -1406,7 +1406,7 @@ Created by: Joel Anderton
 Created date: 7/22/2019
 
 OFC2 Check files on file server
-Version 1.4
+Version 1.5
 
 Only works for the OFC2 Study
 Checks the following:
@@ -1419,6 +1419,7 @@ Updates:
 9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
 11/25/2019 - Fixed issue with "Spelling" check
 2/5/2020 - Added reasons to the "Unsuable check"
+2/18/2020 - Accounted for Dental Casts with only Max or Mand or neither in the Contents Check 
     ''')
 
 
@@ -1432,7 +1433,7 @@ drive = StringVar()
 phenotype = StringVar()
 check = StringVar()
 
-root.title('Phenotype File and Folder Checking v. 1.4')
+root.title('Phenotype File and Folder Checking v. 1.5')
 
 frame = Frame(root, width=200, height=310, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
 frame.place(x=30, y=160)
