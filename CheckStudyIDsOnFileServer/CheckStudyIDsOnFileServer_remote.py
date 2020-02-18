@@ -2,7 +2,7 @@
 # Check StudyIDs on the File Server
 # Created by: Joel Anderton
 # Created date: 6/11/2019
-# Updated date: 2/5/202020
+# Updated date: 2/5/2020
 #
 # Purpose: Check that the OFC2 StudyIDs that name the files on the file server match the IDs in SQL
 #          Check they did what they were suppose to do
@@ -215,9 +215,13 @@ def get_reasons_to_exclude(phenotype, studyID=''):
                     'Photos3D':'''SELECT (CASE WHEN [Photos3D] =1 AND [Photos3DProcessed] =0 THEN (StudyID + ' - Not Processed') END) AS Reason
                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  
                                    WHERE [Photos3D] =1 AND [Photos3DProcessed] =0''',
-                    'DentalImpression':'''SELECT (CASE WHEN [DentalImpression] = 1 AND [DentalCastProcessed] = 0 THEN (StudyID + ' - Not Processed') END) AS Reason
+                    'DentalImpression':'''SELECT (CASE WHEN [DentalImpression] = 1 AND [DentalCastProcessed] = 0 THEN (StudyID + ' - Not Processed') 
+                                                       WHEN [MaxMand] = 0 THEN StudyID +' - Neither Maxillary or Mandibular could be processed' 
+                                           			   WHEN [MaxMand] = 2 THEN StudyID +' - No Mandibular - Maxillary only'
+                                           			   WHEN [MaxMand] = 3 THEN StudyID +' - No Maxillary - Mandibular only' 
+                                           			   END) AS Reason
                                             FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] 
-                                           WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0''',
+                                           WHERE ([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)''',
                     'HandScan':'''SELECT  (CASE WHEN [HandScan] =1 AND [HandScanProcessed] = 0 THEN (StudyID + ' - Not Processed') END) AS Reason 
                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] 
                                    WHERE [HandScan] =1 AND [HandScanProcessed] = 0''',
