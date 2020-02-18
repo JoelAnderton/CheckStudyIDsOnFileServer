@@ -127,9 +127,9 @@ def get_IDs_to_exclude(phenotype, studyID=''):
                     'Photos3D':'''SELECT [StudyID], [Photos3D], [Photos3DProcessed]  
                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  
                                    WHERE [Photos3D] =1 AND [Photos3DProcessed] =0''',
-                    'DentalImpression':'''SELECT [StudyID], [DentalImpression], [DentalCastProcessed]
+                    'DentalImpression':'''SELECT [StudyID], [DentalImpression], [DentalCastProcessed], [MaxMand]
                                             FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] 
-                                           WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0''',
+                                           WHERE ([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)''',
                     'HandScan':'''SELECT  [StudyID], [HandScan], [HandScanProcessed] 
                                    FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] 
                                   WHERE [HandScan] =1 AND [HandScanProcessed] = 0''',
@@ -161,7 +161,7 @@ def get_IDs_to_exclude(phenotype, studyID=''):
                                    WHERE [Photos3D] =1 AND [Photos3DProcessed] =0 AND [StudyID] =?''',
                     'DentalImpression':'''SELECT [StudyID], [DentalImpression], [DentalCastProcessed] 
                                             FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW]
-                                           WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0 AND [StudyID] =?''',
+                                           WHERE (([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)) AND [StudyID] =?''',
                     'HandScan':'''SELECT  [StudyID], [HandScan], [HandScanProcessed]
                                      FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW]
                                     WHERE [HandScan] =1 AND [HandScanProcessed] = 0 AND [StudyID] =?''',
@@ -252,7 +252,7 @@ def get_reasons_to_exclude(phenotype, studyID=''):
                                     WHERE [Photos3D] =1 AND [Photos3DProcessed] =0 AND [StudyID] =?''',
                     'DentalImpression':'''SELECT [StudyID], [DentalImpression], [DentalCastProcessed]
                                             FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW]
-                                           WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0 AND [StudyID] =?''',
+                                           WHERE (([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)) AND [StudyID] =?''',
                     'HandScan':'''SELECT  [StudyID], [HandScan], [HandScanProcessed]
                                      FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW]
                                     WHERE [HandScan] =1 AND [HandScanProcessed] = 0 AND [StudyID] =?''',
