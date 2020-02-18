@@ -250,7 +250,11 @@ def get_reasons_to_exclude(phenotype, studyID=''):
                     'Photos3D':'''SELECT [StudyID], [Photos3D], [Photos3DProcessed]  
                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  
                                     WHERE [Photos3D] =1 AND [Photos3DProcessed] =0 AND [StudyID] =?''',
-                    'DentalImpression':'''SELECT [StudyID], [DentalImpression], [DentalCastProcessed]
+                    'DentalImpression':'''SELECT (CASE WHEN [DentalImpression] = 1 AND [DentalCastProcessed] = 0 THEN (StudyID + ' - Not Processed') 
+                                                       WHEN [MaxMand] = 0 THEN StudyID +' - Neither Maxillary or Mandibular could be processed' 
+                                           			   WHEN [MaxMand] = 2 THEN StudyID +' - No Mandibular - Maxillary only'
+                                           			   WHEN [MaxMand] = 3 THEN StudyID +' - No Maxillary - Mandibular only' 
+                                           			   END) AS Reason
                                             FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW]
                                            WHERE (([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)) AND [StudyID] =?''',
                     'HandScan':'''SELECT  [StudyID], [HandScan], [HandScanProcessed]
