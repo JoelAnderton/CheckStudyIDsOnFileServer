@@ -13,6 +13,7 @@
 #       - 9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
 #       - 11/25/2019 - Fixed issue with "Spelling" check       
 #       - 2/5/2020 - Added reasons to the "Unsuable check"
+#       - 2/18/2020 - Accounted for Dental Casts in the Contents Check based of the MaxMand column in the PhenotypeChecklist
 #
 #####################################################################################################################################
 from tkinter import *
