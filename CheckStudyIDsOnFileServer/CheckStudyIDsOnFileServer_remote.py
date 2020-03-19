@@ -2,7 +2,7 @@
 # Check StudyIDs on the File Server
 # Created by: Joel Anderton
 # Created date: 6/11/2019
-# Updated date: 2/5/2020
+# Updated date: 2/18/2020
 #
 # Purpose: Check that the OFC2 StudyIDs that name the files on the file server match the IDs in SQL
 #          Check they did what they were suppose to do
