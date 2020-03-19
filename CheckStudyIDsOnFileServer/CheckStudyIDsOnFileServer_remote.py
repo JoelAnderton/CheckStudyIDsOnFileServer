@@ -2,7 +2,7 @@
 # Check StudyIDs on the File Server
 # Created by: Joel Anderton
 # Created date: 6/11/2019
-# Updated date: 11/25/2019
+# Updated date: 2/18/2020
 #
 # Purpose: Check that the OFC2 StudyIDs that name the files on the file server match the IDs in SQL
 #          Check they did what they were suppose to do
@@ -12,6 +12,8 @@
 #       - 9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check. 
 #       - 9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
 #       - 11/25/2019 - Fixed issue with "Spelling" check       
+#       - 2/5/2020 - Added reasons to the "Unsuable check"
+#       - 2/18/2020 - Accounted for Dental Casts in the Contents Check based of the MaxMand column in the PhenotypeChecklist
 #
 #####################################################################################################################################
 from tkinter import *
@@ -105,26 +107,68 @@ def get_IDs_to_exclude(phenotype, studyID=''):
     connection = sql_connection2()
     cur = connection.cursor()
 
-    sql_code_dic = {'LipUltrasound':'SELECT [StudyID], [LipUltrasound], [OOMProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0', 
-                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 OR [LipPit_YesNo]=1)',
-                    'LHFPhoto': 'SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0',
-                    'IntraoralPhotos':'SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0',
-                    'PalateVideo':'SELECT [StudyID], [PalateVideo], [PalateVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0',
-                    'Photos3D':'SELECT [StudyID], [Photos3D], [Photos3DProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  WHERE [Photos3D] =1 AND [Photos3DProcessed] =0',
-                    'DentalImpression':'SELECT [StudyID], [DentalImpression], [DentalCastProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0',
-                    'HandScan':'SELECT  [StudyID], [HandScan], [HandScanProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] WHERE [HandScan] =1 AND [HandScanProcessed] = 0',
-                    'SpeechVideos':'SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW]  WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0'
+    sql_code_dic = {'LipUltrasound':'''SELECT [StudyID], [LipUltrasound], [OOMProcessed]
+                                         FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] 
+                                        WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0''', 
+                    'LipPhotos':'''SELECT [StudyID], [LipPhotos], [LipPhotosArchived], [LipPhotosProcessed] 
+                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] 
+                                    WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   
+                                          (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=1  AND ([LipPhotosProcessed] =0 or [LipPhotosProcessed] is null)OR 
+                                          (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR 
+	                                      (LipPhotos=1 AND LipPits_=1 OR [LipPit_YesNo]=1)     ''',
+                    'LHFPhoto': '''SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed]
+                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  
+                                    WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0''',
+                    'IntraoralPhotos':'''SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed] 
+                                           FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] 
+                                          WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0''',
+                    'PalateVideo':'''SELECT [StudyID], [PalateVideo], [PalateVideosProcessed] 
+                                       FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] 
+                                      WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0''',
+                    'Photos3D':'''SELECT [StudyID], [Photos3D], [Photos3DProcessed]  
+                                    FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  
+                                   WHERE [Photos3D] =1 AND [Photos3DProcessed] =0''',
+                    'DentalImpression':'''SELECT [StudyID], [DentalImpression], [DentalCastProcessed], [MaxMand]
+                                            FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] 
+                                           WHERE ([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)''',
+                    'HandScan':'''SELECT  [StudyID], [HandScan], [HandScanProcessed] 
+                                   FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] 
+                                  WHERE [HandScan] =1 AND [HandScanProcessed] = 0''',
+                    'SpeechVideos':'''SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed]
+                                        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW] 
+                                       WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0'''
         }
 
-    sql_code_dic_with_StudyID = {'LipUltrasound':'SELECT [StudyID], [LipUltrasound], [OOMProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0 AND [StudyID] =?',
-                    'LipPhotos':'SELECT  [StudyID], [LipPhotos], [LipPhotosArchived], [LipPhotosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR (LipPhotos=1 AND LipPits_=1 OR [LipPit_YesNo]=1) AND [StudyID] =?',
-                    'LHFPhoto': 'SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0 AND [StudyID] =?',
-                    'IntraoralPhotos':'SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0 AND [StudyID] =?',
-                    'PalateVideo':'SELECT [StudyID], [PalateVideo], [PalateVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0 AND [StudyID] =?',
-                    'Photos3D':'SELECT [StudyID], [Photos3D], [Photos3DProcessed]  FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  WHERE [Photos3D] =1 AND [Photos3DProcessed] =0 AND [StudyID] =?',
-                    'DentalImpression':'SELECT [StudyID], [DentalImpression], [DentalCastProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] WHERE [DentalImpression] = 1 AND [DentalCastProcessed] = 0 AND [StudyID] =?',
-                    'HandScan':'SELECT  [StudyID], [HandScan], [HandScanProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] WHERE [HandScan] =1 AND [HandScanProcessed] = 0 AND [StudyID] =?',
-                    'SpeechVideos':'SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed] FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW]  WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0 AND [StudyID] =?'
+    sql_code_dic_with_StudyID = {'LipUltrasound':'''SELECT [StudyID], [LipUltrasound], [OOMProcessed] 
+                                                      FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] 
+                                                     WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0 AND [StudyID] =?''',
+                    'LipPhotos':'''SELECT  [StudyID], [LipPhotos], [LipPhotosArchived], [LipPhotosProcessed] 
+                                      FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] 
+                                      WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR 
+                                            (LipPhotos=1 AND [LipPhotosReceived]=1 AND [LipPhotosArchived]=1 AND  ([LipPhotosProcessed] =0 or [LipPhotosProcessed] is null)) OR
+                                            (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR 
+                                            (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1) OR [StudyID] =?''',
+                    'LHFPhoto': '''SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] 
+                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  
+                                    WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0 AND [StudyID] =?''',
+                    'IntraoralPhotos':'''SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed]
+                                           FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] 
+                                          WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0 AND [StudyID] =?''',
+                    'PalateVideo':'''SELECT [StudyID], [PalateVideo], [PalateVideosProcessed]
+                                       FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] 
+                                      WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0 AND [StudyID] =?''',
+                    'Photos3D':'''SELECT [StudyID], [Photos3D], [Photos3DProcessed]  
+                                    FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW] 
+                                   WHERE [Photos3D] =1 AND [Photos3DProcessed] =0 AND [StudyID] =?''',
+                    'DentalImpression':'''SELECT [StudyID], [DentalImpression], [DentalCastProcessed] 
+                                            FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW]
+                                           WHERE (([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)) AND [StudyID] =?''',
+                    'HandScan':'''SELECT  [StudyID], [HandScan], [HandScanProcessed]
+                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW]
+                                    WHERE [HandScan] =1 AND [HandScanProcessed] = 0 AND [StudyID] =?''',
+                    'SpeechVideos':'''SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed] 
+                                        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW]
+                                       WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0 AND [StudyID] =?'''
         }
 
     if studyID == '': # if not given an individual StudyID
@@ -139,6 +183,102 @@ def get_IDs_to_exclude(phenotype, studyID=''):
         IDs_to_exclude.append(row[0])
     return IDs_to_exclude
 
+
+def get_reasons_to_exclude(phenotype, studyID=''):
+    """Finds StudyIDs in SQL to exclude from report because unusable, not received, or lip pits"""
+    studyID_list = []
+    studyID_list.append(studyID)
+    connection = sql_connection2()
+    cur = connection.cursor()
+
+    sql_code_dic = {'LipUltrasound':'''SELECT (CASE WHEN [LipUltrasound] = 1 and [OOMProcessed] = 0 THEN (StudyID + ' - Not Processed') END) AS Reason
+                                         FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] 
+                                        WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0''', 
+                    'LipPhotos':'''SELECT  (CASE WHEN (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) THEN ([StudyID] +' - Not Archived')
+                                                 WHEN (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=1 AND ([LipPhotosProcessed] =0 or [LipPhotosProcessed] is null)) THEN ([StudyID] +' - Not Processed')
+                                                 WHEN (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) THEN ([StudyID] + ' - Not Received')
+	                                             WHEN (LipPhotos=1 AND LipPits_=1 OR [LipPit_YesNo]=1) THEN ([StudyID] + ' - Lip Pits')  END) AS Reason 
+                                                
+                                     FROM  [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] 
+                                     WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR   
+                                    		(LipPhotos=1 AND [LipPhotosReceived]=1 AND  [LipPhotosArchived]=1 AND  ([LipPhotosProcessed] =0 or [LipPhotosProcessed] is null)) OR
+                                    		(LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR 
+                                    		(LipPhotos=1 AND LipPits_=1 OR [LipPit_YesNo]=1)''',
+                    'LHFPhoto': '''SELECT  (CASE WHEN [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0 THEN (StudyID + ' - Not Processed') END) AS Reason
+                                   FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]  
+                                  WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0''',
+                    'IntraoralPhotos':'''SELECT (CASE WHEN [IntraoralPhotos] =1 AND [IntraOralProcessed]=0 THEN (StudyID + ' - Not Processed') END) AS Reason
+                                           FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW] 
+                                          WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0''',
+                    'PalateVideo':'''SELECT (CASE WHEN [PalateVideo] =1 AND [PalateVideosProcessed]=0 THEN (StudyID + ' - Not Processed') END) AS Reason
+                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW] 
+                                    WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0''',
+                    'Photos3D':'''SELECT (CASE WHEN [Photos3D] =1 AND [Photos3DProcessed] =0 THEN (StudyID + ' - Not Processed') END) AS Reason
+                                    FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  
+                                   WHERE [Photos3D] =1 AND [Photos3DProcessed] =0''',
+                    'DentalImpression':'''SELECT (CASE WHEN [DentalImpression] = 1 AND [DentalCastProcessed] = 0 THEN (StudyID + ' - Not Processed') 
+                                                       WHEN [MaxMand] = 0 THEN StudyID +' - Neither Maxillary or Mandibular could be processed' 
+                                           			   WHEN [MaxMand] = 2 THEN StudyID +' - No Mandibular - Maxillary only'
+                                           			   WHEN [MaxMand] = 3 THEN StudyID +' - No Maxillary - Mandibular only' 
+                                           			   END) AS Reason
+                                            FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW] 
+                                           WHERE ([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)''',
+                    'HandScan':'''SELECT  (CASE WHEN [HandScan] =1 AND [HandScanProcessed] = 0 THEN (StudyID + ' - Not Processed') END) AS Reason 
+                                    FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW] 
+                                   WHERE [HandScan] =1 AND [HandScanProcessed] = 0''',
+                    'SpeechVideos':'''SELECT (CASE WHEN [SpeechVideos] =1 AND [SpeechVideosProcessed] =0 THEN (StudyID + ' - Not Processed') END) AS Reason 
+                                        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW]  
+                                       WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0'''
+        }
+
+    sql_code_dic_with_StudyID = {'LipUltrasound':'''SELECT [StudyID], [LipUltrasound], [OOMProcessed] 
+                                                      FROM [OFC Ratings].[dbo].[PhenotypeChecklist_OOM_VW] 
+                                                     WHERE [LipUltrasound] = 1 and [OOMProcessed] = 0 AND [StudyID] =?''',
+                    'LipPhotos':'''SELECT  [StudyID], [LipPhotos], [LipPhotosArchived], [LipPhotosProcessed], [LipPits_], [LipPit_YesNo] 
+                                      FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LipPhotos_VW] 
+                                     WHERE (LipPhotos=1 AND [LipPhotosReceived]=1 AND [LipPhotosArchived]=0 AND LipPhotosProcessed=0) OR  
+                                           (LipPhotos=1 AND LipPhotosReceived IS NULL AND LipPhotosArchived IS NULL AND LipPhotosReceived IS NULL) OR
+                                           (LipPhotos=1 AND LipPits_=1 AND [LipPit_YesNo]=1) OR [StudyID] =?''',
+                    'LHFPhoto': '''SELECT [StudyID], [LHFPhoto], [WoundHealingProcessed] 
+                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_LHF Photo_VW]
+                                    WHERE [LHFPhoto] = 1 AND [WoundHealingProcessed] = 0 AND [StudyID] =?''',
+                    'IntraoralPhotos':'''SELECT [StudyID], [IntraoralPhotos], [IntraOralProcessed]
+                                           FROM [OFC Ratings].[dbo].[PhenotypeChecklist_IOP_VW]
+                                          WHERE [IntraoralPhotos] =1 AND [IntraOralProcessed]=0 AND [StudyID] =?''',
+                    'PalateVideo':'''SELECT [StudyID], [PalateVideo], [PalateVideosProcessed]
+                                       FROM [OFC Ratings].[dbo].[PhenotypeChecklist_PalateVideo_VW]
+                                      WHERE [PalateVideo] =1 AND [PalateVideosProcessed]=0 AND [StudyID] =?''',
+                    'Photos3D':'''SELECT [StudyID], [Photos3D], [Photos3DProcessed]  
+                                    FROM [OFC Ratings].[dbo].[PhenotypeChecklist_3DPhoto_VW]  
+                                    WHERE [Photos3D] =1 AND [Photos3DProcessed] =0 AND [StudyID] =?''',
+                    'DentalImpression':'''SELECT (CASE WHEN [DentalImpression] = 1 AND [DentalCastProcessed] = 0 THEN (StudyID + ' - Not Processed') 
+                                                       WHEN [MaxMand] = 0 THEN StudyID +' - Neither Maxillary or Mandibular could be processed' 
+                                           			   WHEN [MaxMand] = 2 THEN StudyID +' - No Mandibular - Maxillary only'
+                                           			   WHEN [MaxMand] = 3 THEN StudyID +' - No Maxillary - Mandibular only' 
+                                           			   END) AS Reason
+                                            FROM [OFC Ratings].[dbo].[PhenotypeChecklist_DentalImpression_VW]
+                                           WHERE (([DentalImpression] = 1 AND [DentalCastProcessed] = 0) OR [MaxMand] IN(0,2,3)) AND [StudyID] =?''',
+                    'HandScan':'''SELECT  [StudyID], [HandScan], [HandScanProcessed]
+                                     FROM [OFC Ratings].[dbo].[PhenotypeChecklist_HandScan_VW]
+                                    WHERE [HandScan] =1 AND [HandScanProcessed] = 0 AND [StudyID] =?''',
+                    'SpeechVideos':'''SELECT [StudyID], [SpeechVideos], [SpeechVideosProcessed]
+                                        FROM [OFC Ratings].[dbo].[PhenotypeChecklist_SpeechVideo_VW] 
+                                       WHERE [SpeechVideos] =1 AND [SpeechVideosProcessed] =0 AND [StudyID] =?'''
+        }
+
+
+    if studyID == '': # if not given an individual StudyID
+        sqlcode = (sql_code_dic[phenotype])
+        cur.execute(sqlcode)
+    else: # if given an individual StudyID
+        sqlcode = (sql_code_dic_with_StudyID[phenotype])
+        cur.execute(sqlcode, studyID_list)
+
+    reasons_to_exclude = []
+    for row in cur.fetchall():
+        reasons_to_exclude.append(row[0])
+
+    return reasons_to_exclude
 
 def get_file_paths(drive, phenotype):
     phenotype_paths = {'R:':{'LipUltrasound':r'R:\OFC2\PhenotypeRating\OOM', 
@@ -513,6 +653,7 @@ def check_contents(drive, phenotype, studyID=''):
                                  '[A-Za-z]{2}[0-9]{5}.*Clean_Standard\.[Pp][Dd][Ff]',
                                  '[A-Za-z]{2}[0-9]{5}.*Clean_Standard\.[Tt][Xx][Tt]'
                                   ],
+                                
 
                      'DentalImpression':['[A-Za-z]{2}[0-9]{5}MAND\.[Ss][Tt][Ll]',
                                          '[A-Za-z]{2}[0-9]{5}MAX\.[Ss][Tt][Ll]'],
@@ -602,6 +743,7 @@ def check_contents(drive, phenotype, studyID=''):
         
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        text.insert(INSERT, 'StudyID   | File\n')
         if len(missing) >0:
             for studyID in missing:
                 if phenotype == 'LipUltrasound':
@@ -613,7 +755,7 @@ def check_contents(drive, phenotype, studyID=''):
                 else:
                     file_extenstion = 'some'
 
-                text.insert(INSERT,'{0} is missing a {1} file\n'.format(studyID, file_extenstion))
+                text.insert(INSERT,'{0} | is missing a {1} file\n'.format(studyID, file_extenstion))
                 text.see(END)
                 text.update()
                 #print(studyID, 'is missing an .mp4 file')
@@ -664,9 +806,10 @@ def check_contents(drive, phenotype, studyID=''):
 
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        text.insert(INSERT, 'StudyID   | File\n')
         if len(missing) >0:
             for studyID in missing:
-                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.insert(INSERT,'{0} | {1} is missing\n'.format(studyID[0:7], studyID))
                 text.see(END)
                 text.update()
                 #print(studyID, 'is missing')
@@ -721,9 +864,10 @@ def check_contents(drive, phenotype, studyID=''):
 
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        text.insert(INSERT, 'StudyID   | File\n')
         if len(missing) >0:
             for studyID in missing:
-                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.insert(INSERT,'{0} | {1} is missing\n'.format(studyID[0:7], studyID))
                 text.see(END)
                 text.update()
                 #print(studyID, 'is missing')
@@ -794,9 +938,10 @@ def check_contents(drive, phenotype, studyID=''):
 
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        text.insert(INSERT, 'StudyID   | File\n')
         if len(missing) >0:
             for studyID in missing:
-                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.insert(INSERT,'{0} | {1} is missing\n'.format(studyID[0:7], studyID))
                 text.see(END)
                 text.update()
                 #print(studyID, 'is missing')
@@ -868,9 +1013,10 @@ def check_contents(drive, phenotype, studyID=''):
 
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        text.insert(INSERT, 'StudyID   | File\n')
         if len(missing) >0:
             for studyID in missing:
-                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.insert(INSERT,'{0} | {1} is missing\n'.format(studyID[0:7], studyID))
                 text.see(END)
                 text.update()
                 #print(studyID, 'is missing')
@@ -892,12 +1038,12 @@ def check_contents(drive, phenotype, studyID=''):
                             study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
                             if 'tom' in file.lower():
                                 file = study_ID_in_file[0] + '.tom'
-                            elif 'clean_standard.tsb' in file.lower():
-                                file = study_ID_in_file[0] + '_Clean_Standard.tsb'
-                            elif 'clean_standard.pdf' in file.lower():
-                                file = study_ID_in_file[0] + '_Clean_Standard.pdf'
-                            elif 'clean_standard.txt' in file.lower():
-                                file = study_ID_in_file[0] + '_Clean_Standard.txt'
+                            #elif 'clean_standard.tsb' in file.lower():
+                            #    file = study_ID_in_file[0] + '_Clean_Standard.tsb'
+                            #elif 'clean_standard.pdf' in file.lower():
+                            #    file = study_ID_in_file[0] + '_Clean_Standard.pdf'
+                            #elif 'clean_standard.txt' in file.lower():
+                            #    file = study_ID_in_file[0] + '_Clean_Standard.txt'
                             elif 'clean.tsb' in file.lower():
                                 file = study_ID_in_file[0] + '_Clean.tsb'
                             elif 'clean.obj' in file.lower():
@@ -938,12 +1084,12 @@ def check_contents(drive, phenotype, studyID=''):
                                 study_ID_in_file = re.findall('[A-Za-z]{2}[0-9]{5}', file)
                                 if 'tom' in file.lower():
                                     file = study_ID_in_file[0] + '.tom'
-                                elif 'clean_standard.tsb' in file.lower():
-                                    file = study_ID_in_file[0] + '_Clean_Standard.tsb'
-                                elif 'clean_standard.pdf' in file.lower():
-                                    file = study_ID_in_file[0] + '_Clean_Standard.pdf'
-                                elif 'clean_standard.txt' in file.lower():
-                                    file = study_ID_in_file[0] + '_Clean_Standard.txt'
+                                #elif 'clean_standard.tsb' in file.lower():
+                                #    file = study_ID_in_file[0] + '_Clean_Standard.tsb'
+                                #elif 'clean_standard.pdf' in file.lower():
+                                #    file = study_ID_in_file[0] + '_Clean_Standard.pdf'
+                                #elif 'clean_standard.txt' in file.lower():
+                                #    file = study_ID_in_file[0] + '_Clean_Standard.txt'
                                 elif 'clean.tsb' in file.lower():
                                     file = study_ID_in_file[0] + '_Clean.tsb'
                                 elif 'clean.obj' in file.lower():
@@ -980,12 +1126,13 @@ def check_contents(drive, phenotype, studyID=''):
             if studyID[0] in exclude_list:
                 continue
             else:
-                should_have_STANDARD_TSB = '{}_Clean_Standard.tsb'.format(studyID[0])
-                should_have.append(should_have_STANDARD_TSB)
-                should_have_STANDARD_PDF = '{}_Clean_Standard.pdf'.format(studyID[0])
-                should_have.append(should_have_STANDARD_PDF)
-                should_have_STANDARD_TXT = '{}_Clean_Standard.txt'.format(studyID[0])
-                should_have.append(should_have_STANDARD_TXT)
+                pass
+                #should_have_STANDARD_TSB = '{}_Clean_Standard.tsb'.format(studyID[0])
+                #should_have.append(should_have_STANDARD_TSB)
+                #should_have_STANDARD_PDF = '{}_Clean_Standard.pdf'.format(studyID[0])
+                #should_have.append(should_have_STANDARD_PDF)
+                #should_have_STANDARD_TXT = '{}_Clean_Standard.txt'.format(studyID[0])
+                #should_have.append(should_have_STANDARD_TXT)
 
                 if studyID[13] == '3dMD' and drive == 'P:':
                     should_have_TSB = '{}.tsb'.format(studyID[0])
@@ -1028,9 +1175,10 @@ def check_contents(drive, phenotype, studyID=''):
 
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        text.insert(INSERT, 'StudyID   | File\n')
         if len(missing) >0:
             for studyID in missing:
-                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.insert(INSERT,'{0} | {1} is missing\n'.format(studyID[0:7], studyID))
                 text.see(END)
                 text.update()
                 #print(studyID, 'is missing')
@@ -1184,9 +1332,10 @@ def check_contents(drive, phenotype, studyID=''):
         #print(missing)
         text.delete('5.0','end')  
         text.insert(INSERT, '\nCheck the Individual Checklist and phenotype folder for the following:\n'.format(phenotype))
+        text.insert(INSERT, 'StudyID   | File\n')
         if len(missing) >0:
             for studyID in missing:
-                text.insert(INSERT,'{0} is missing\n'.format(studyID))
+                text.insert(INSERT,'{0} | is missing\n'.format(studyID))
                 text.see(END)
                 text.update()
                 #print(studyID, 'is missing')
@@ -1201,7 +1350,8 @@ def check_contents(drive, phenotype, studyID=''):
 
 
 def check_unusables(phenotype, studyID=''):
-    unusable_list = get_IDs_to_exclude(phenotype, studyID)
+    #unusable_list = get_IDs_to_exclude(phenotype, studyID)
+    reasons_list = get_reasons_to_exclude(phenotype, studyID)
 
     text.config(state='normal')
     text.delete('1.0', 'end')
@@ -1211,12 +1361,12 @@ def check_unusables(phenotype, studyID=''):
     text.update()
 
     
-    if len(unusable_list) > 0:
-        for studyID in unusable_list:
-            text.insert(INSERT,'{0}\n'.format(studyID))
+    if len(reasons_list) > 0:
+        for row in reasons_list:
+            text.insert(INSERT,'{0}\n'.format(row))
             text.see(END)
             text.update()
-        text.insert(INSERT,'Total number of subjects with unusable {0}: {1}'.format(phenotype, len(unusable_list)))
+        text.insert(INSERT,'Total number of subjects with unusable {0}: {1}'.format(phenotype, len(reasons_list)))
     else:
         text.insert(INSERT, '\nThere are no subjects marked as having unusable phenotypes!')
         text.see(END)
@@ -1246,6 +1396,7 @@ def get_savelog():
     #print(log_contents)
     with asksaveasfile(title='Save Output', mode='a+', defaultextension='.csv', filetypes =(('csv', '.csv'),('txt', '.txt'))) as create_log:
         for line in log_contents:
+            line = str(line).replace('|', ',')       
             create_log.writelines(line)
 
 
@@ -1255,7 +1406,7 @@ Created by: Joel Anderton
 Created date: 7/22/2019
 
 OFC2 Check files on file server
-Version 1.3
+Version 1.5
 
 Only works for the OFC2 Study
 Checks the following:
@@ -1267,7 +1418,8 @@ Updates:
 9/9/2019 - Excluded subjects because unusable, not received, or lip pits from Contents Check.
 9/25/2019 - Added "Unusable Check" to list subjects mark as having unusable phenotypes.
 11/25/2019 - Fixed issue with "Spelling" check
-
+2/5/2020 - Added reasons to the "Unsuable check"
+2/18/2020 - Accounted for Dental Casts with only Max or Mand or neither in the Contents Check 
     ''')
 
 
@@ -1281,7 +1433,7 @@ drive = StringVar()
 phenotype = StringVar()
 check = StringVar()
 
-root.title('Phenotype File and Folder Checking v. 1.3')
+root.title('Phenotype File and Folder Checking v. 1.5')
 
 frame = Frame(root, width=200, height=310, highlightbackground="black", highlightcolor="black", highlightthickness=1, bd=0)
 frame.place(x=30, y=160)
